@@ -37,6 +37,7 @@ SITES = [
     {
         "name": "ListenHub-免费",
         "curl_bash_env": "LISTENHUB_FREE_CURL_BASH",
+        "default_body": '{"platform":"listenhub"}',
         "success_keywords": ["success", "checkin", "签到"],
         "already_keywords": ["already", "已签到", "今日已签"],
         "auth_fail_keywords": ["unauthorized", "invalid token", "expired", "未登录"],
@@ -46,6 +47,7 @@ SITES = [
     {
         "name": "ListenHub-会员",
         "curl_bash_env": "LISTENHUB_PRO_CURL_BASH",
+        "default_body": '{"platform":"listenhub"}',
         "success_keywords": ["success", "checkin", "签到"],
         "already_keywords": ["already", "已签到", "今日已签"],
         "auth_fail_keywords": ["unauthorized", "invalid token", "expired", "未登录"],

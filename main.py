@@ -177,8 +177,14 @@ def run_curl_checkin(site: dict) -> tuple[bool, str]:
     except Exception as e:
         return False, f"❌ {site['name']}解析 curl 失败: {e}"
 
+    # 如果 curl 里没有 body 但站点配了 default_body，用它
+    body = spec["body"]
+    if not body and site.get("default_body"):
+        body = site["default_body"]
+        logger.info(f"  [{site['name']}] 使用默认 body: {body}")
+
     logger.info(f"[{site['name']}] → {spec['method']} {spec['url']}")
-    logger.info(f"  Cookie: {len(spec['cookies'])} 个 | Header: {len(spec['headers'])} 个")
+    logger.info(f"  Cookie: {len(spec['cookies'])} 个 | Header: {len(spec['headers'])} 个 | Body: {'有' if body else '无'}")
 
     session = requests.Session()
     session.headers.update(spec["headers"])
@@ -191,7 +197,7 @@ def run_curl_checkin(site: dict) -> tuple[bool, str]:
             resp = session.request(
                 spec["method"],
                 spec["url"],
-                data=spec["body"],
+                data=body,
                 timeout=30,
                 allow_redirects=False,
             )
@@ -254,7 +260,12 @@ def main() -> int:
     for name, success, desc in results:
         emoji = "✅" if success else "❌"
         # 只取描述的第一行
+        # 去掉描述开头已有的 emoji，避免重复
         first_line = desc.split("\n")[0]
+        for e in ("✅ ", "❌ ", "⚠️ "):
+            if first_line.startswith(e):
+                first_line = first_line[len(e):]
+                break
         report_lines.append(f"{emoji} {first_line}")
 
     if disabled:
