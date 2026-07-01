@@ -28,6 +28,14 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
     if status >= 500:
         return (f"❌ 服务器异常 HTTP {status}\n响应: {text[:200]}", False)
 
+    # 302/301 重定向 — 通常是被踢到登录页
+    if status in (301, 302, 303, 307, 308):
+        return (
+            f"❌ {site['name']} Cookie/Token 失效 — HTTP {status}\n"
+            f"💡 请重新登录后抓包更新 {site['curl_bash_env']}",
+            False,
+        )
+
     # 尝试 JSON 解析
     ret, msg = None, text
     try:
@@ -119,6 +127,11 @@ def run_site_checkin(site: dict) -> tuple[bool, str]:
             )
     except requests.RequestException as e:
         return False, f"❌ {site['name']}网络异常: {e}"
+
+    # 重定向时记录 Location，方便诊断
+    if resp.status_code in (301, 302, 303, 307, 308):
+        location = resp.headers.get("Location", "(无 Location)")
+        logger.warning(f"  [{site['name']}] HTTP {resp.status_code} → {location}")
 
     desc, success = classify(resp.text.strip(), resp.status_code, site)
     if success:
