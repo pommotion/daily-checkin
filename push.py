@@ -26,7 +26,7 @@ class PushNotification:
                     content = content[:3990] + "\n...(截断)"
                 resp = requests.post(
                     url,
-                    data=json.dumps({"chat_id": chat_id, "text": content, "parse_mode": "Markdown"}),
+                    data=json.dumps({"chat_id": chat_id, "text": content}),
                     headers=self.headers,
                     timeout=10,
                 )
