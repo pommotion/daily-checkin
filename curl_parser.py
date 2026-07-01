@@ -23,7 +23,7 @@ def parse_curl(curl_str: str) -> dict:
 
     # 2. url
     url_match = re.search(
-        r"curl\s+(?:-[A-Za-z]+\s+['\"]?[^\s'\"]+['\"]?\s+)*['\"]?(https?://[^'\"\s]+)['\"]?",
+        r"(https?://[^'\"\s]+)",
         curl_str,
         re.I,
     )
