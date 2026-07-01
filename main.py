@@ -102,6 +102,76 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
 
 def run_site_checkin(site: dict) -> tuple[bool, str]:
     """执行单个站点的签到"""
+    auth_mode = site.get("auth_mode")
+
+    if auth_mode == "sspanel_login":
+        return run_sspanel_login_checkin(site)
+
+    return run_curl_checkin(site)
+
+
+def run_sspanel_login_checkin(site: dict) -> tuple[bool, str]:
+    """SSPanel 账号密码登录模式：登录拿 Cookie → 签到 → 判定
+
+    绕过 IP 绑定问题（curl_bash 中的 Cookie 含 IP 校验，换 IP 后失效）。
+    """
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest",
+    })
+
+    # --- 登录 ---
+    logger.info(f"[{site['name']}] → 登录 {site['login_url']}")
+    try:
+        login_resp = session.post(
+            site["login_url"],
+            data={"email": site["email"], "passwd": site["passwd"], "remember_me": "on"},
+            timeout=30,
+            allow_redirects=False,
+        )
+    except requests.RequestException as e:
+        return False, f"❌ {site['name']}登录网络异常: {e}"
+
+    try:
+        login_data = login_resp.json()
+    except Exception:
+        login_data = {"ret": 0, "msg": login_resp.text[:200]}
+
+    if login_data.get("ret") != 1:
+        msg = login_data.get("msg", "未知错误")
+        return False, f"❌ {site['name']}登录失败 — {msg}"
+
+    logger.info(f"  [{site['name']}] 登录成功")
+
+    # --- 签到 ---
+    logger.info(f"[{site['name']}] → POST {site['checkin_url']}")
+    try:
+        resp = session.post(site["checkin_url"], timeout=30, allow_redirects=False)
+    except requests.RequestException as e:
+        return False, f"❌ {site['name']}签到网络异常: {e}"
+
+    # 重定向时记录 Location
+    if resp.status_code in (301, 302, 303, 307, 308):
+        location = resp.headers.get("Location", "(无 Location)")
+        logger.warning(f"  [{site['name']}] HTTP {resp.status_code} → {location}")
+
+    desc, success = classify(resp.text.strip(), resp.status_code, site)
+    if success:
+        logger.info(desc)
+    else:
+        logger.error(desc)
+
+    return success, desc
+
+
+def run_curl_checkin(site: dict) -> tuple[bool, str]:
+    """curl_bash 回放模式"""
     try:
         spec = parse_curl(site["curl_bash"])
     except Exception as e:

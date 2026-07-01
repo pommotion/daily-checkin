@@ -33,7 +33,8 @@ jobs:
         env:
           # ===== 站点 Secret（curl_bash 整段）=====
           HITUN_CURL_BASH: ${{ secrets.HITUN_CURL_BASH }}
-          RENZHE_CURL_BASH: ${{ secrets.RENZHE_CURL_BASH }}
+          RENZHE_EMAIL: ${{ secrets.RENZHE_EMAIL }}
+          RENZHE_PASSWD: ${{ secrets.RENZHE_PASSWD }}
           LISTENHUB_FREE_CURL_BASH: ${{ secrets.LISTENHUB_FREE_CURL_BASH }}
           LISTENHUB_PRO_CURL_BASH: ${{ secrets.LISTENHUB_PRO_CURL_BASH }}
           # ===== 推送配置 =====

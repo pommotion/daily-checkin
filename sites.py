@@ -22,7 +22,12 @@ SITES = [
     },
     {
         "name": "忍者云",
-        "curl_bash_env": "RENZHE_CURL_BASH",
+        # SSPanel 账号密码登录模式（绕过 IP 绑定）
+        "auth_mode": "sspanel_login",
+        "login_url": "https://renzhe.cloud/auth/login",
+        "checkin_url": "https://renzhe.cloud/user/checkin",
+        "email_env": "RENZHE_EMAIL",
+        "passwd_env": "RENZHE_PASSWD",
         "success_keywords": ["成功", "获得了"],
         "already_keywords": ["已经签到", "似乎已经签到"],
         "auth_fail_keywords": ["未登录", "请先登录", "登录失败"],
@@ -51,16 +56,28 @@ SITES = [
 
 
 def get_enabled_sites() -> list[dict]:
-    """返回启用的站点列表，并从环境变量读入 curl_bash"""
+    """返回启用的站点列表，从环境变量读入凭证"""
     result = []
     for site in SITES:
         if not site.get("enabled", True):
             continue
-        curl_bash = os.getenv(site["curl_bash_env"], "")
-        if not curl_bash:
-            continue
         site_copy = site.copy()
-        site_copy["curl_bash"] = curl_bash
+
+        if site.get("auth_mode") == "sspanel_login":
+            # 账号密码登录模式
+            email = os.getenv(site["email_env"], "")
+            passwd = os.getenv(site["passwd_env"], "")
+            if not email or not passwd:
+                continue
+            site_copy["email"] = email
+            site_copy["passwd"] = passwd
+        else:
+            # curl_bash 回放模式
+            curl_bash = os.getenv(site["curl_bash_env"], "")
+            if not curl_bash:
+                continue
+            site_copy["curl_bash"] = curl_bash
+
         result.append(site_copy)
     return result
 
@@ -71,6 +88,9 @@ def get_disabled_reasons() -> list[str]:
     for site in SITES:
         if not site.get("enabled", True):
             reasons.append(f"⏸️ {site['name']} — 已禁用")
+        elif site.get("auth_mode") == "sspanel_login":
+            if not os.getenv(site["email_env"], "") or not os.getenv(site["passwd_env"], ""):
+                reasons.append(f"⚠️ {site['name']} — Secret {site['email_env']}/{site['passwd_env']} 未配置")
         elif not os.getenv(site["curl_bash_env"], ""):
             reasons.append(f"⚠️ {site['name']} — Secret {site['curl_bash_env']} 未配置")
     return reasons
