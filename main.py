@@ -183,6 +183,13 @@ def run_curl_checkin(site: dict) -> tuple[bool, str]:
         body = site["default_body"]
         logger.info(f"  [{site['name']}] 使用默认 body: {body}")
 
+    # body 是 JSON 但 curl 里没带 content-type，补上
+    if body and body.strip().startswith("{"):
+        has_ct = any(k.lower() == "content-type" for k in spec["headers"])
+        if not has_ct:
+            spec["headers"]["Content-Type"] = "application/json"
+            logger.info(f"  [{site['name']}] 补 Content-Type: application/json")
+
     logger.info(f"[{site['name']}] → {spec['method']} {spec['url']}")
     logger.info(f"  Cookie: {len(spec['cookies'])} 个 | Header: {len(spec['headers'])} 个 | Body: {'有' if body else '无'}")
 
