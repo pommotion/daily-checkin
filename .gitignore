@@ -1,0 +1,13 @@
+# Secret 配置（敏感信息，不提交）
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
