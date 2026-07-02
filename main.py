@@ -49,6 +49,20 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
     if ret == 1:
         return (f"✅ {site['name']}签到成功 — {msg}", True)
 
+    # ListenHub 系: code=0 成功，code=28101 已签
+    if ret is None:
+        try:
+            data = json.loads(text)
+            code = data.get("code")
+            if code == 0:
+                detail = data.get("data", {})
+                credits = detail.get("rewardCredits", "?") if isinstance(detail, dict) else "?"
+                return (f"✅ {site['name']}签到成功 — +{credits} credits", True)
+            if code == 28101:
+                return (f"✅ {site['name']}今日已签到 — Already checked in today", True)
+        except Exception:
+            pass
+
     # ListenHub 系: JSON 带 success/error 字段
     try:
         data = json.loads(text)
