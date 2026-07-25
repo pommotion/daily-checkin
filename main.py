@@ -72,6 +72,19 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
         except Exception:
             pass
 
+    # idkey: status=success/fail，fail=今日已签，返回积分余额
+    try:
+        data = json.loads(text)
+        status = data.get("status")
+        if status == "success":
+            points = data.get("points", "?")
+            return (f"✅ {site['name']}签到成功 — {points} points", True)
+        if status == "fail":
+            points = data.get("points", "?")
+            return (f"✅ {site['name']}今日已签到 — {points} points", True)
+    except Exception:
+        pass
+
     # ListenHub 系: JSON 带 success/error 字段
     try:
         data = json.loads(text)

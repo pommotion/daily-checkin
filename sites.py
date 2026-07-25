@@ -54,6 +54,16 @@ SITES = [
         "cf_fail_keywords": [],
         "enabled": True,
     },
+    {
+        "name": "idkey",
+        "curl_bash_env": "IDKEY_CURL_BASH",
+        "success_keywords": ["\"status\":\"success\""],
+        # idkey 的已签到返回 status=fail 且带积分数据
+        "already_keywords": ["\"status\":\"fail\""],
+        "auth_fail_keywords": ["unauthorized", "invalid token", "expired", "未登录"],
+        "cf_fail_keywords": ["cloudflare", "just a moment"],
+        "enabled": True,
+    },
 ]
 
 
