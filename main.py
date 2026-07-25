@@ -41,12 +41,21 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
     try:
         data = json.loads(text)
         ret = data.get("ret")
-        msg = data.get("msg", "") or data.get("message", "") or text
+        msg = data.get("msg", "")
+        # msg 为空时才尝试其他字段，不要 fallback 到原始 text
+        if not msg:
+            msg = data.get("message", "")
     except Exception:
         pass
 
     # SSPanel 系（hitun/忍者云）: ret=1 为成功
     if ret == 1:
+        if not msg:
+            msg = "签到成功"
+        # 检查是否已签过
+        already_kws = site.get("already_keywords", [])
+        if any(k in msg for k in already_kws):
+            return (f"✅ {site['name']}今日已签到 — {msg}", True)
         return (f"✅ {site['name']}签到成功 — {msg}", True)
 
     # ListenHub 系: code=0 成功，code=28101 已签
