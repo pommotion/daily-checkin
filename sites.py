@@ -20,20 +20,7 @@ SITES = [
         "cf_fail_keywords": ["cloudflare", "turnstile", "captcha", "验证码", "just a moment"],
         "enabled": True,
     },
-    {
-        "name": "忍者云",
-        # SSPanel 账号密码登录模式（绕过 IP 绑定）
-        "auth_mode": "sspanel_login",
-        "login_url": "https://renzhe.cloud/auth/login",
-        "checkin_url": "https://renzhe.cloud/user/checkin",
-        "email_env": "RENZHE_EMAIL",
-        "passwd_env": "RENZHE_PASSWD",
-        "success_keywords": ["成功", "获得了"],
-        "already_keywords": ["已经签到", "似乎已经签到"],
-        "auth_fail_keywords": ["未登录", "请先登录", "登录失败"],
-        "cf_fail_keywords": ["cloudflare", "turnstile", "captcha", "just a moment"],
-        "enabled": True,
-    },
+    # 已移除：忍者云（Passkey 强制验证，无法自动化）
     {
         "name": "ListenHub-免费",
         "curl_bash_env": "LISTENHUB_FREE_CURL_BASH",
