@@ -21,6 +21,7 @@ SITES = [
         "enabled": True,
     },
     # 已移除：忍者云（Passkey 强制验证，无法自动化）
+    # 已移除：idkey（Cloudflare cf_clearance IP 绑定，GitHub Actions 无法绕过）
     {
         "name": "ListenHub-免费",
         "curl_bash_env": "LISTENHUB_FREE_CURL_BASH",
@@ -49,7 +50,7 @@ SITES = [
         "already_keywords": ["\"status\":\"fail\""],
         "auth_fail_keywords": ["unauthorized", "invalid token", "expired", "未登录"],
         "cf_fail_keywords": ["cloudflare", "just a moment"],
-        "enabled": True,
+        "enabled": False,
     },
 ]
 

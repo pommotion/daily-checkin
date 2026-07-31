@@ -47,7 +47,8 @@ curl_bash 回放模式已能覆盖绝大多数签到场景。
 | `RENZHE_PASSWD` | 忍者云登录密码 |
 | `LISTENHUB_FREE_CURL_BASH` | ListenHub 免费账号签到 curl bash |
 | `LISTENHUB_PRO_CURL_BASH` | ListenHub 会员账号签到 curl bash |
-| `IDKEY_CURL_BASH` | idkey 签到 curl bash |
+
+<!-- 已移除：IDKEY_CURL_BASH — Cloudflare cf_clearance IP 绑定，GitHub Actions 无法绕过 -->
 
 #### 推送配置
 
@@ -114,8 +115,8 @@ NEW_SITE_CURL_BASH: ${{ secrets.NEW_SITE_CURL_BASH }}
 ## ⏰ Cookie/Token 更新
 
 - **hitun.io**: cf_clearance ~30 天过期，需重新抓包
-- **忍者云**: 账号密码自动登录，无需维护 Cookie
+- **忍者云**: 已移除（Passkey 强制验证）
 - **ListenHub**: JWT ~60 天过期，需重新抓包
-- **idkey**: JWT ~7 天过期，cf_clearance ~30 天过期，需重新抓包
+- **idkey**: 已移除（CF IP 绑定）
 
 签到失败时报告会标注哪个站需更新，推送通知会提醒。

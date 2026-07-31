@@ -37,7 +37,7 @@ jobs:
           # RENZHE_PASSWD: ${{ secrets.RENZHE_PASSWD }}
           LISTENHUB_FREE_CURL_BASH: ${{ secrets.LISTENHUB_FREE_CURL_BASH }}
           LISTENHUB_PRO_CURL_BASH: ${{ secrets.LISTENHUB_PRO_CURL_BASH }}
-          IDKEY_CURL_BASH: ${{ secrets.IDKEY_CURL_BASH }}
+          # IDKEY_CURL_BASH: ${{ secrets.IDKEY_CURL_BASH }}  # CF 拦截，已移除
           # ===== 推送配置 =====
           PUSH_METHOD: ${{ secrets.PUSH_METHOD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
