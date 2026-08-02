@@ -17,6 +17,8 @@ from curl_parser import parse_curl
 from log_utils import setup_logging
 from push import push
 from sites import get_enabled_sites, get_disabled_reasons
+from state import load_state, save_state, record_results, build_streak_summary
+from health import check_all
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +75,14 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
             pass
 
     # idkey: status=success/fail，fail=今日已签，返回积分余额
+    # 注意: 用 body_status 而非 status，避免覆盖 HTTP 状态码参数（会让后面的 403 判定失效）
     try:
         data = json.loads(text)
-        status = data.get("status")
-        if status == "success":
+        body_status = data.get("status")
+        if body_status == "success":
             points = data.get("points", "?")
             return (f"✅ {site['name']}签到成功 — {points} points", True)
-        if status == "fail":
+        if body_status == "fail":
             points = data.get("points", "?")
             return (f"✅ {site['name']}今日已签到 — {points} points", True)
     except Exception:
@@ -278,6 +281,17 @@ def main() -> int:
         logger.error("没有可执行的签到任务")
         return 1
 
+    # ---- 载入跨天状态 ----
+    state = load_state()
+
+    # ---- L2: 凭证到期预警（在签到前先检查）----
+    logger.info("\n--- 凭证健康检查 ---")
+    cred_warnings = check_all(sites, state)
+    for w in cred_warnings:
+        logger.warning(w)
+    if not cred_warnings:
+        logger.info("✓ 所有凭证在有效期内")
+
     results: list[tuple[str, bool, str]] = []
 
     for site in sites:
@@ -289,16 +303,33 @@ def main() -> int:
             logger.exception(f"{site['name']} 异常")
         results.append((site["name"], success, desc))
 
+    # ---- L3: 记录结果并检测连续失败 ----
+    now_dt = datetime.now(beijing_tz)
+    streak_alerts = record_results(state, results, now_dt)
+    for a in streak_alerts:
+        logger.error(a)
+
     # ---- 汇总报告 ----
     success_count = sum(1 for _, s, _ in results if s)
     fail_count = len(results) - success_count
     all_success = fail_count == 0
 
+    # 标题分级: 连续失败或凭证即将过期 → 升级为告警，不让问题淹没在日报里
+    urgent = bool(streak_alerts) or any("🚨" in w for w in cred_warnings)
+    if urgent:
+        title = "🚨 签到异常 — 需人工介入"
+    elif cred_warnings:
+        title = "⚠️ 每日签到报告 — 凭证即将过期"
+    else:
+        title = "📅 每日签到报告"
+
     report_lines = [
-        f"📅 每日签到报告",
+        title,
         f"🕐 {now_str}",
         f"",
     ]
+
+    streak_notes = build_streak_summary(state, results)
 
     for name, success, desc in results:
         emoji = "✅" if success else "❌"
@@ -310,6 +341,17 @@ def main() -> int:
                 first_line = first_line[len(e):]
                 break
         report_lines.append(f"{emoji} {first_line}")
+        # 失败且非首次 → 跟一行连续失败说明（按站点名精确匹配）
+        note = streak_notes.get(name)
+        if note:
+            report_lines.append(note)
+
+    # ---- 凭证预警区 ----
+    if cred_warnings:
+        report_lines.append("")
+        report_lines.append("── 凭证到期提醒 ──")
+        for w in cred_warnings:
+            report_lines.append(w)
 
     if disabled:
         report_lines.append("")
@@ -322,12 +364,15 @@ def main() -> int:
     report = "\n".join(report_lines)
     logger.info(f"\n{'=' * 60}\n{report}\n{'=' * 60}")
 
+    # ---- 写回状态（同时承担 L1 保活: 每天一次 commit 防 60 天自动禁用）----
+    save_state(state)
+
     # ---- 推送 ----
     import os
     push_method = os.getenv("PUSH_METHOD", "")
     if push_method:
         logger.info(f"推送渠道: {push_method}")
-        push(report, push_method, is_success=all_success)
+        push(report, push_method, is_success=all_success and not urgent)
     else:
         logger.info("未配置推送渠道，跳过推送")
 

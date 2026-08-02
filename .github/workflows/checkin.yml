@@ -14,6 +14,8 @@ jobs:
   checkin:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write   # 需要写权限把 state.json 提交回仓库
 
     steps:
       - name: Checkout
@@ -47,3 +49,30 @@ jobs:
           SERVERCHAN_SPT: ${{ secrets.SERVERCHAN_SPT }}
         run: |
           python main.py
+
+      # 把 state.json 提交回仓库。
+      # 双重作用:
+      #   1. 保留跨天状态（连续失败计数、凭证首见日期）
+      #   2. 保活 — 仓库每天有 commit，不会触发 GitHub「60 天无活动自动禁用 schedule」
+      - name: Commit state
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --staged --quiet && echo "state 无变化，跳过提交" && exit 0
+          git commit -m "chore: update state $(date -u +%Y-%m-%d)"
+          git push
+
+  # 第二道保险。
+  # commit 保活靠 state.json 变化，万一某段时间 state 恰好一直不变（或 commit 步骤失败），
+  # 这个 job 直接调 GitHub API 重置 60 天计时器，不依赖仓库有无新 commit。
+  # 与 wxread 仓库用的是同一方案。
+  keepalive:
+    name: Keepalive Workflow
+    if: ${{ always() }}
+    needs: checkin
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1.2.1
