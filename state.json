@@ -1,20 +1,20 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": 15,
+      "jwt_days_left": 14,
       "jwt_exp": "2026-08-30T00:42:12+00:00"
     },
     "ListenHub-免费": {
-      "jwt_days_left": 15,
+      "jwt_days_left": 14,
       "jwt_exp": "2026-08-30T00:38:13+00:00"
     },
     "海豚湾": {
-      "cf_days_left": 18,
+      "cf_days_left": 17,
       "cf_fingerprint": "bf8d73e859c7b15d",
       "cf_first_seen": "2026-08-02"
     }
   },
-  "last_run_at": "2026-08-14T10:39:10.262121+08:00",
+  "last_run_at": "2026-08-15T09:45:57.948865+08:00",
   "runs": [
     {
       "date": "2026-08-02",
@@ -80,29 +80,34 @@
       "date": "2026-08-14",
       "fail": 0,
       "success": 3
+    },
+    {
+      "date": "2026-08-15",
+      "fail": 0,
+      "success": 3
     }
   ],
   "sites": {
     "ListenHub-会员": {
       "fail_streak": 0,
-      "last_run": "2026-08-14",
-      "last_success": "2026-08-14",
+      "last_run": "2026-08-15",
+      "last_success": "2026-08-15",
       "total_fails": 0,
-      "total_runs": 13
+      "total_runs": 14
     },
     "ListenHub-免费": {
       "fail_streak": 0,
-      "last_run": "2026-08-14",
-      "last_success": "2026-08-14",
+      "last_run": "2026-08-15",
+      "last_success": "2026-08-15",
       "total_fails": 0,
-      "total_runs": 13
+      "total_runs": 14
     },
     "海豚湾": {
       "fail_streak": 0,
-      "last_run": "2026-08-14",
-      "last_success": "2026-08-14",
+      "last_run": "2026-08-15",
+      "last_success": "2026-08-15",
       "total_fails": 0,
-      "total_runs": 13
+      "total_runs": 14
     }
   },
   "version": 1
