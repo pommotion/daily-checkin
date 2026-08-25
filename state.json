@@ -18,7 +18,7 @@
       "cf_first_seen": "2026-08-02"
     }
   },
-  "last_run_at": "2026-08-26T04:46:54.348271+08:00",
+  "last_run_at": "2026-08-26T04:51:24.070760+08:00",
   "runs": [
     {
       "date": "2026-08-02",
@@ -149,6 +149,11 @@
       "date": "2026-08-26",
       "fail": 0,
       "success": 4
+    },
+    {
+      "date": "2026-08-26",
+      "fail": 1,
+      "success": 3
     }
   ],
   "sites": {
@@ -157,29 +162,29 @@
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 26
+      "total_runs": 27
     },
     "ListenHub-免费": {
       "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 26
+      "total_runs": 27
     },
     "Moss-API": {
-      "fail_streak": 0,
+      "fail_streak": 1,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "recovered_at": "2026-08-26",
-      "total_fails": 1,
-      "total_runs": 2
+      "total_fails": 2,
+      "total_runs": 3
     },
     "海豚湾": {
       "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 26
+      "total_runs": 27
     }
   },
   "version": 1
