@@ -19,7 +19,7 @@ from push import push
 from sites import get_enabled_sites, get_disabled_reasons
 from state import load_state, save_state, record_results, build_streak_summary
 from health import check_all
-from moss_checkin import run_moss_sso_checkin
+from moss_checkin import run_moss_sso_checkin, apply_chain_token_for_health
 
 logger = logging.getLogger(__name__)
 
@@ -289,6 +289,8 @@ def main() -> int:
     state = load_state()
 
     # ---- L2: 凭证到期预警（在签到前先检查）----
+    # moss：有活跃链条时预警改看链头 token（种子的 exp 固定，会天天误报）
+    apply_chain_token_for_health(sites, state)
     logger.info("\n--- 凭证健康检查 ---")
     cred_warnings = check_all(sites, state)
     for w in cred_warnings:

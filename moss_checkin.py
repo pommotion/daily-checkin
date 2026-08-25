@@ -153,6 +153,21 @@ def _do_refresh(session, token: str):
     return access_token, _extract_rotated_token(r), r
 
 
+def apply_chain_token_for_health(sites: list[dict], state: dict) -> None:
+    """health.py 的 JWT 预警默认看 Secret 种子——种子的 exp 在抓取时就固定了，
+    即使 state 链条健康也会天天误报「快过期」。有活跃链条时改看链头。"""
+    key = _enc_key()
+    blob = (state.get("moss_sso") or {}).get("rt_blob", "")
+    if not (blob and key):
+        return
+    tok = _decrypt_token(blob, key)
+    if not tok:
+        return
+    for site in sites:
+        if site.get("auth_mode") == "moss_sso" and site.get("refresh_token"):
+            site["curl_bash"] = "Bearer " + tok
+
+
 def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
     name = site["name"]
     token, source = _load_active_token(site, state)
