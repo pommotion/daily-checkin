@@ -301,7 +301,7 @@ def main() -> int:
     for site in sites:
         logger.info(f"\n--- [{site['name']}] ---")
         try:
-            success, desc = run_site_checkin(site)
+            success, desc = run_site_checkin(site, state)
         except Exception as e:
             success, desc = False, f"❌ {site['name']}执行异常: {e}"
             logger.exception(f"{site['name']} 异常")
