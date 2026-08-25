@@ -18,10 +18,10 @@
       "cf_first_seen": "2026-08-02"
     }
   },
-  "last_run_at": "2026-08-26T05:04:34.756156+08:00",
+  "last_run_at": "2026-08-26T05:08:07.251117+08:00",
   "moss_sso": {
-    "rt_blob": "vn41Xz++cxTfeX1VLfi5uRPmSoiY30lTqV3lcpbR+RMDd5I/wTbAMePn5pi73CAcuwIzV2YDQaq3VmYly1mz6uHSPaRhp1UP05TzsXg6/EnBte/H3OPc/egWFliFIRTT7yFHsQe130d0w4mLdQoEM8OVRj2lgJWBCeMP4hrt8LWjCdKwKQGWEpIkFMF8uzvTdvZiH0PWOF4AYHLWBCBzZMkrgPpj15rcKTrDQ50TK0l5tsESrdo06PbSzHeE/WhSCVFAhTU5JmlUMczLJVvAtLUBM0Sszd2zrcXwKGDGpUuIqOHtu0Y03cJ4Mlhr0w7T3LD5KkP+JHFgCNkwiIyL9ghHljV4WOTSiSqte+HfS0sTMKySSb/xuShdDgXiWeKmlMTEhzNbQx5p80q+DowOA+vEKvYll4JigMk75akZBmLluw01o8hLqK3zqQTQ2cKbShCkAZpDo4pun1Gmvm7gm1jekt7TNuP50yCQu15maOqlzzz9UMlREQ==",
-    "updated_at": "2026-08-26 05:04"
+    "rt_blob": "dLSA20pdwI5K9N7OwhvoxPlx81jtawiFJGipHqIGTcZUGL6A3B0zxNlCxrLKzMoYTuBYCL+i6c/zdAR9j5FwdPMJQbwu6tWlXrSAipOPXZtKLKbYIVwfeG6bSdNkyg43YPTzm52OFtqjxmWlgZYG93030EPed4Lk9uBs9/vbwoRgdPYCqZHeew8Q8ukk3ZHR3jC3i1ry1rXhUffe8OJNlpMdk4iugkXH7F20ma9FhxMEOy+HvP8rM09abwdUeGUwxWczuQvEqMJp0yrYu7tPSJt5FvS3ru5WjzwLK6k4Z3c6FJBHaiHvkREOFUJv3B/L1l0am06Okps/L+eB9safpxN5zK+AN2p3fXdIVEYQyeTlZGEYHmyxfQwIH4Audm70JE6BnnTaK44aOQ+YducOVHTX9TFNXMI4HJgtNExuo1jhaIKg6NIvENA80B1eg1OKliqGc4yMHQBSdLhKIeCYsinOBmCbN7jmXWUEocMWBNYK+AB873ibnw==",
+    "updated_at": "2026-08-26 05:08"
   },
   "runs": [
     {
@@ -163,6 +163,11 @@
       "date": "2026-08-26",
       "fail": 0,
       "success": 4
+    },
+    {
+      "date": "2026-08-26",
+      "fail": 0,
+      "success": 4
     }
   ],
   "sites": {
@@ -171,14 +176,14 @@
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 28
+      "total_runs": 29
     },
     "ListenHub-免费": {
       "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 28
+      "total_runs": 29
     },
     "Moss-API": {
       "fail_streak": 0,
@@ -186,14 +191,14 @@
       "last_success": "2026-08-26",
       "recovered_at": "2026-08-26",
       "total_fails": 2,
-      "total_runs": 4
+      "total_runs": 5
     },
     "海豚湾": {
       "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 28
+      "total_runs": 29
     }
   },
   "version": 1
