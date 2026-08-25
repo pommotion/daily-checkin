@@ -154,18 +154,15 @@ def _do_refresh(session, token: str):
 
 
 def apply_chain_token_for_health(sites: list[dict], state: dict) -> None:
-    """health.py 的 JWT 预警默认看 Secret 种子——种子的 exp 在抓取时就固定了，
-    即使 state 链条健康也会天天误报「快过期」。有活跃链条时改看链头。"""
-    key = _enc_key()
+    """health.py 的 JWT 预警不适合 mossland 的轮换 token：链头每次轮换都是
+    「现在+7天」，remaining 永远 ≤ 阈值 7 → 天天误报。链条存在 = 每天都在自续，
+    无需预警（链断了签到会自己失败）；只有链条缺失时才看种子的固定 exp。"""
     blob = (state.get("moss_sso") or {}).get("rt_blob", "")
-    if not (blob and key):
-        return
-    tok = _decrypt_token(blob, key)
-    if not tok:
-        return
+    if not blob:
+        return  # 无链条：保留种子 curl_bash，按种子 exp 预警（有意义）
     for site in sites:
-        if site.get("auth_mode") == "moss_sso" and site.get("refresh_token"):
-            site["curl_bash"] = "Bearer " + tok
+        if site.get("auth_mode") == "moss_sso":
+            site.pop("curl_bash", None)  # 跳过 JWT 预警
 
 
 def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
