@@ -52,6 +52,18 @@ SITES = [
         "cf_fail_keywords": ["cloudflare", "just a moment"],
         "enabled": False,
     },
+    {
+        "name": "Moss-API",
+        "auth_mode": "moss_sso",
+        "refresh_token_env": "MOSS_REFRESH_TOKEN",
+        # 挂到 curl_bash_env 仅为让 health.py 的 JWT 到期预警提示正确的 Secret 名
+        "curl_bash_env": "MOSS_REFRESH_TOKEN",
+        "success_keywords": ["登录成功"],
+        "already_keywords": ["已领", "已到账"],
+        "auth_fail_keywords": ["过期", "无效", "登录页"],
+        "cf_fail_keywords": [],
+        "enabled": True,
+    },
 ]
 
 
@@ -71,6 +83,13 @@ def get_enabled_sites() -> list[dict]:
                 continue
             site_copy["email"] = email
             site_copy["passwd"] = passwd
+        elif site.get("auth_mode") == "moss_sso":
+            # moss_sso：env 只是种子，state 链条也可用，因此无 env 也启用
+            token = os.getenv(site["refresh_token_env"], "")
+            if token:
+                site_copy["refresh_token"] = token
+                # 复用 health.py 的 JWT 预警：refresh_token 是 JWT
+                site_copy["curl_bash"] = "Bearer " + token
         else:
             # curl_bash 回放模式
             curl_bash = os.getenv(site["curl_bash_env"], "")
@@ -88,6 +107,11 @@ def get_disabled_reasons() -> list[str]:
     for site in SITES:
         if not site.get("enabled", True):
             reasons.append(f"⏸️ {site['name']} — 已禁用")
+        elif site.get("auth_mode") == "moss_sso":
+            if not os.getenv(site.get("refresh_token_env", ""), ""):
+                reasons.append(
+                    f"ℹ️ {site['name']} — 种子 Secret {site.get('refresh_token_env')} 未配置"
+                    f"（若 state 链条存在仍可运行）")
         elif site.get("auth_mode") == "sspanel_login":
             if not os.getenv(site["email_env"], "") or not os.getenv(site["passwd_env"], ""):
                 reasons.append(f"⚠️ {site['name']} — Secret {site['email_env']}/{site['passwd_env']} 未配置")

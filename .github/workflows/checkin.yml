@@ -40,6 +40,9 @@ jobs:
           LISTENHUB_FREE_CURL_BASH: ${{ secrets.LISTENHUB_FREE_CURL_BASH }}
           LISTENHUB_PRO_CURL_BASH: ${{ secrets.LISTENHUB_PRO_CURL_BASH }}
           # IDKEY_CURL_BASH: ${{ secrets.IDKEY_CURL_BASH }}  # CF 拦截，已移除
+          # ===== Moss API 每日登录（SSO 静默重放领 100 积分）=====
+          MOSS_REFRESH_TOKEN: ${{ secrets.MOSS_REFRESH_TOKEN }}
+          MOSS_RT_ENC_KEY: ${{ secrets.MOSS_RT_ENC_KEY }}  # state.json 里轮换 refresh_token 的 AES-GCM 加密 key
           # ===== 推送配置 =====
           PUSH_METHOD: ${{ secrets.PUSH_METHOD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

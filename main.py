@@ -19,6 +19,7 @@ from push import push
 from sites import get_enabled_sites, get_disabled_reasons
 from state import load_state, save_state, record_results, build_streak_summary
 from health import check_all
+from moss_checkin import run_moss_sso_checkin
 
 logger = logging.getLogger(__name__)
 
@@ -139,12 +140,15 @@ def classify(text: str, status: int, site: dict) -> tuple[str, bool]:
     return (f"⚠️ {site['name']}未知响应\nHTTP {status}\nret={ret}\nmsg={msg}\n原始: {text[:300]}", False)
 
 
-def run_site_checkin(site: dict) -> tuple[bool, str]:
+def run_site_checkin(site: dict, state: dict | None = None) -> tuple[bool, str]:
     """执行单个站点的签到"""
     auth_mode = site.get("auth_mode")
 
     if auth_mode == "sspanel_login":
         return run_sspanel_login_checkin(site)
+
+    if auth_mode == "moss_sso":
+        return run_moss_sso_checkin(site, state or {})
 
     return run_curl_checkin(site)
 
