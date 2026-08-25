@@ -10,7 +10,7 @@
     },
     "Moss-API": {
       "jwt_days_left": 6,
-      "jwt_exp": "2026-09-01T20:45:48+00:00"
+      "jwt_exp": "2026-09-01T21:03:39+00:00"
     },
     "海豚湾": {
       "cf_days_left": 7,
@@ -18,7 +18,11 @@
       "cf_first_seen": "2026-08-02"
     }
   },
-  "last_run_at": "2026-08-26T04:51:24.070760+08:00",
+  "last_run_at": "2026-08-26T05:04:34.756156+08:00",
+  "moss_sso": {
+    "rt_blob": "vn41Xz++cxTfeX1VLfi5uRPmSoiY30lTqV3lcpbR+RMDd5I/wTbAMePn5pi73CAcuwIzV2YDQaq3VmYly1mz6uHSPaRhp1UP05TzsXg6/EnBte/H3OPc/egWFliFIRTT7yFHsQe130d0w4mLdQoEM8OVRj2lgJWBCeMP4hrt8LWjCdKwKQGWEpIkFMF8uzvTdvZiH0PWOF4AYHLWBCBzZMkrgPpj15rcKTrDQ50TK0l5tsESrdo06PbSzHeE/WhSCVFAhTU5JmlUMczLJVvAtLUBM0Sszd2zrcXwKGDGpUuIqOHtu0Y03cJ4Mlhr0w7T3LD5KkP+JHFgCNkwiIyL9ghHljV4WOTSiSqte+HfS0sTMKySSb/xuShdDgXiWeKmlMTEhzNbQx5p80q+DowOA+vEKvYll4JigMk75akZBmLluw01o8hLqK3zqQTQ2cKbShCkAZpDo4pun1Gmvm7gm1jekt7TNuP50yCQu15maOqlzzz9UMlREQ==",
+    "updated_at": "2026-08-26 05:04"
+  },
   "runs": [
     {
       "date": "2026-08-02",
@@ -154,6 +158,11 @@
       "date": "2026-08-26",
       "fail": 1,
       "success": 3
+    },
+    {
+      "date": "2026-08-26",
+      "fail": 0,
+      "success": 4
     }
   ],
   "sites": {
@@ -162,29 +171,29 @@
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 27
+      "total_runs": 28
     },
     "ListenHub-免费": {
       "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 27
+      "total_runs": 28
     },
     "Moss-API": {
-      "fail_streak": 1,
+      "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "recovered_at": "2026-08-26",
       "total_fails": 2,
-      "total_runs": 3
+      "total_runs": 4
     },
     "海豚湾": {
       "fail_streak": 0,
       "last_run": "2026-08-26",
       "last_success": "2026-08-26",
       "total_fails": 0,
-      "total_runs": 27
+      "total_runs": 28
     }
   },
   "version": 1
