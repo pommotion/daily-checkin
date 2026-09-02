@@ -30,7 +30,8 @@ SITES = [
         "already_keywords": ["already", "已签到", "今日已签"],
         "auth_fail_keywords": ["unauthorized", "invalid token", "expired", "未登录"],
         "cf_fail_keywords": [],
-        "enabled": True,
+        # 2026-09-03 用户决定停用（JWT 已过期，不再续）
+        "enabled": False,
     },
     {
         "name": "ListenHub-会员",
