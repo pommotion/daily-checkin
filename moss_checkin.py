@@ -12,7 +12,13 @@
      → HTML meta refresh 里带 authorize URL
   3. GET  mossland.studio/api/v1/auth/platform/sso/authorize?...  (Cookie: access_token=...)
      → 302 回 platform.mosi.cn/api/v1/auth/studio/sso/callback?code&state
-     → 回调页 #studio_sso_session=<base64 JSON>（服务端此刻完成发券）
+     → 服务端此刻完成发券
+     【2026-08-29 改版】回调页不再 302、不再带 #studio_sso_session 片段，
+       改为直接 200 返回引导页，平台令牌内联在
+       localStorage.setItem("mosi-platform:auth", {JSON}) 中；
+       每日奖励同期从 100 改为 50（活动「每日登录奖励0830」）。
+       另：mossland/mosi 挂了阿里云 WAF（acw_tc/_abfpc），authorize
+       偶发被软拦到登录页，需换新 state 重试。
   4. GET  platform.mosi.cn/portal-api/me (Bearer 新令牌) 验证 + 查余额
 
 轮换持久化（应对 1 的轮换）:
@@ -139,6 +145,28 @@ def _decode_session_fragment(fragment: str) -> dict | None:
     return None
 
 
+def _extract_session_data(resp) -> dict | None:
+    """从 callback 响应提取平台令牌。
+
+    2026-08-29 改版后：callback 直接 200 返回 954 字节引导页，令牌内联在
+    <script>localStorage.setItem("mosi-platform:auth", {JSON}) 里
+    （旧版是 URL 片段 #studio_sso_session=<base64url>，保留兜底）。"""
+    m = re.search(
+        r'setItem\("mosi-platform:auth",\s*(?:JSON\.stringify\()?\s*(\{.*?\})\)',
+        resp.text, re.S)
+    if m:
+        try:
+            data = json.loads(m.group(1))
+            if isinstance(data, dict) and data.get("access_token"):
+                return data
+        except Exception:
+            pass
+    m = re.search(r"#studio_sso_session=([^\"'\s]+)", resp.text)
+    if m:
+        return _decode_session_fragment(m.group(1))
+    return None
+
+
 def _do_refresh(session, token: str):
     """返回 (access_token, rotated_refresh_token|None, resp)。"""
     r = session.post(MOSSLAND_REFRESH_URL, cookies={"refresh_token": token},
@@ -212,21 +240,34 @@ def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
     authorize_url = m.group(1).replace("&amp;", "&")
 
     # ---- 3. authorize（带 access_token cookie）→ 302 → callback ----
+    # WAF（acw_tc/_abfpc）偶发把 authorize 软拦到登录页，换新 state 重试一次
     logger.info(f"[{name}] → GET authorize → callback")
-    try:
-        r3 = s.get(authorize_url, cookies={"access_token": access_token},
-                   timeout=30)
-    except requests.RequestException as e:
-        return False, f"❌ {name}网络异常: {e}"
+    r3 = None
+    for attempt in (1, 2):
+        try:
+            r3 = s.get(authorize_url, cookies={"access_token": access_token},
+                       timeout=30)
+        except requests.RequestException as e:
+            return False, f"❌ {name}网络异常: {e}"
+        reached = ("sso/callback" in r3.url
+                   or any("sso/callback" in (h.headers.get("Location") or "")
+                          for h in r3.history))
+        if reached:
+            break
+        if attempt == 1:
+            logger.info("  authorize 未达 callback（疑似 WAF 软拦），重试一次")
+            try:
+                r2 = s.get(SSO_START_URL, timeout=30)
+            except requests.RequestException as e:
+                return False, f"❌ {name}网络异常: {e}"
+            m = re.search(r"url=(https://mossland\.studio[^\"']+)", r2.text)
+            if not m:
+                return _fail(f"❌ {name}重试时 sso/start 响应异常 HTTP {r2.status_code}")
+            authorize_url = m.group(1).replace("&amp;", "&")
 
-    if "studio_sso_session" not in r3.text:
-        return _fail(f"❌ {name}SSO 未通过（回调页无会话片段）HTTP {r3.status_code}")
-    m2 = re.search(r"#studio_sso_session=([^\"'\s]+)", r3.text)
-    if not m2:
-        return _fail(f"❌ {name}回调页会话片段解析失败")
-    session_data = _decode_session_fragment(m2.group(1))
+    session_data = _extract_session_data(r3)
     if not session_data:
-        return _fail(f"❌ {name}会话片段解码失败")
+        return _fail(f"❌ {name}SSO 未通过（未到达 callback 或回调页无令牌）HTTP {r3.status_code}")
     logger.info("  SSO 回调 OK，平台令牌已签发（发券时刻）")
 
     # ---- 4. 验证 + 余额 ----
@@ -241,14 +282,20 @@ def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
 
     beijing = timezone(timedelta(hours=8))
     today = datetime.now(beijing).strftime("%Y-%m-%d")
-    granted = any(
-        (it.get("processed_at") or "")[:10] == today
-        and it.get("direction") == "credit"
-        and it.get("status") == "granted"
-        for it in (tx.get("items") or [])[:5]
-    )
+    yesterday = (datetime.now(beijing) - timedelta(days=1)).strftime("%Y-%m-%d")
+    granted = False
+    grant_amount = None
+    for it in (tx.get("items") or [])[:5]:
+        # processed_at 是 UTC 日期，凌晨（北京时间）运行时可能还是「昨天」
+        if ((it.get("processed_at") or "")[:10] in (today, yesterday)
+                and it.get("direction") == "credit"
+                and it.get("status") == "granted"):
+            granted = True
+            grant_amount = it.get("display_charged_points")
+            break
     balance = summary.get("display_available_points")
     email = str(me.get("email", "")).replace(r"^(.).*", r"\1***")
-    grant_desc = "今日 +100 已到账" if granted else "今日发放已触发（若早前登录过则已领）"
+    amount_desc = f"+{grant_amount}" if grant_amount is not None else "+?"
+    grant_desc = f"今日 {amount_desc} 已到账" if granted else "今日发放已触发（若早前登录过则已领）"
     bal_desc = f"，余额 {balance}" if balance is not None else ""
     return True, f"✅ {name}登录成功 — {grant_desc}{bal_desc}（{email}）"
