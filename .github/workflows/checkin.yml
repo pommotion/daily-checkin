@@ -2,9 +2,9 @@ name: daily-checkin
 
 on:
   schedule:
-    # 每天北京时间早上 08:11（UTC 00:11）——ListenHub 每天 8 点刷新签到，
-    # 之后跑才能拿到当日份；GitHub schedule 常有 3-15 分钟延迟
-    - cron: '11 0 * * *'
+    # 每天北京时间凌晨 00:07（UTC 16:07）——Moss API 每天零点刷新，紧跟其后拿当日积分；
+    # GitHub schedule 常有延迟（高峰期实测可到 3 小时左右，只会迟到不会早到）
+    - cron: '7 16 * * *'
   workflow_dispatch:
 
 concurrency:
