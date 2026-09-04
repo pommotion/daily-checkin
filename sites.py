@@ -65,6 +65,13 @@ SITES = [
         "cf_fail_keywords": [],
         "enabled": True,
     },
+    {
+        "name": "LibTV",
+        "auth_mode": "libtv",
+        # LIBTV_CREDENTIALS = JSON {"token": "<usertoken cookie>", "webid": "<webid cookie>"}
+        "credentials_env": "LIBTV_CREDENTIALS",
+        "enabled": True,
+    },
 ]
 
 
@@ -91,6 +98,11 @@ def get_enabled_sites() -> list[dict]:
                 site_copy["refresh_token"] = token
                 # 复用 health.py 的 JWT 预警：refresh_token 是 JWT
                 site_copy["curl_bash"] = "Bearer " + token
+        elif site.get("auth_mode") == "libtv":
+            creds = os.getenv(site["credentials_env"], "")
+            if not creds:
+                continue
+            site_copy["credentials"] = creds
         else:
             # curl_bash 回放模式
             curl_bash = os.getenv(site["curl_bash_env"], "")
@@ -113,6 +125,9 @@ def get_disabled_reasons() -> list[str]:
                 reasons.append(
                     f"ℹ️ {site['name']} — 种子 Secret {site.get('refresh_token_env')} 未配置"
                     f"（若 state 链条存在仍可运行）")
+        elif site.get("auth_mode") == "libtv":
+            if not os.getenv(site["credentials_env"], ""):
+                reasons.append(f"⚠️ {site['name']} — Secret {site['credentials_env']} 未配置（token/webid JSON）")
         elif site.get("auth_mode") == "sspanel_login":
             if not os.getenv(site["email_env"], "") or not os.getenv(site["passwd_env"], ""):
                 reasons.append(f"⚠️ {site['name']} — Secret {site['email_env']}/{site['passwd_env']} 未配置")

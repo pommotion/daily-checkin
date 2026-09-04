@@ -20,6 +20,7 @@ from sites import get_enabled_sites, get_disabled_reasons
 from state import load_state, save_state, record_results, build_streak_summary
 from health import check_all
 from moss_checkin import run_moss_sso_checkin, apply_chain_token_for_health
+from libtv_checkin import run_libtv_checkin
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +150,9 @@ def run_site_checkin(site: dict, state: dict | None = None) -> tuple[bool, str]:
 
     if auth_mode == "moss_sso":
         return run_moss_sso_checkin(site, state or {})
+
+    if auth_mode == "libtv":
+        return run_libtv_checkin(site, state or {})
 
     return run_curl_checkin(site)
 
