@@ -23,7 +23,10 @@ from datetime import datetime, timezone, timedelta
 logger = logging.getLogger(__name__)
 
 # 各类凭证的经验寿命（天）
-CF_CLEARANCE_LIFETIME_DAYS = 30
+# 海豚湾实测：cf_clearance 从 2026-08-02 首见起 44+ 天仍正常签到（9-16 验证），
+# 30 天的旧阈值导致「凭证老化」预警被升级为「签到异常」告警（实际 0 失败）。
+# 上调到 60 天，与不透明凭证默认值一致。
+CF_CLEARANCE_LIFETIME_DAYS = 60
 DEFAULT_OPAQUE_LIFETIME_DAYS = 60
 
 # 剩余天数小于该值时开始预警
