@@ -72,6 +72,14 @@ SITES = [
         "credentials_env": "LIBTV_CREDENTIALS",
         "enabled": True,
     },
+    {
+        "name": "WorkBuddy",
+        "auth_mode": "workbuddy",
+        # WORKBUDDY_CREDENTIALS = {"accessToken","refreshToken","expiresAt","domain",
+        # "uid","nickname"}（扁平或 CPA 插件嵌套格式均可）；轮换链存 state 加密 blob
+        "credentials_env": "WORKBUDDY_CREDENTIALS",
+        "enabled": True,
+    },
 ]
 
 
@@ -103,6 +111,9 @@ def get_enabled_sites() -> list[dict]:
             if not creds:
                 continue
             site_copy["credentials"] = creds
+        elif site.get("auth_mode") == "workbuddy":
+            # workbuddy：env 只是种子，state 轮换链也可用，因此无 env 也启用（同 moss）
+            pass
         else:
             # curl_bash 回放模式
             curl_bash = os.getenv(site["curl_bash_env"], "")
@@ -128,6 +139,11 @@ def get_disabled_reasons() -> list[str]:
         elif site.get("auth_mode") == "libtv":
             if not os.getenv(site["credentials_env"], ""):
                 reasons.append(f"⚠️ {site['name']} — Secret {site['credentials_env']} 未配置（token/webid JSON）")
+        elif site.get("auth_mode") == "workbuddy":
+            if not os.getenv(site["credentials_env"], ""):
+                reasons.append(
+                    f"ℹ️ {site['name']} — 种子 Secret {site['credentials_env']} 未配置"
+                    f"（若 state 轮换链存在仍可运行）")
         elif site.get("auth_mode") == "sspanel_login":
             if not os.getenv(site["email_env"], "") or not os.getenv(site["passwd_env"], ""):
                 reasons.append(f"⚠️ {site['name']} — Secret {site['email_env']}/{site['passwd_env']} 未配置")
