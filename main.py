@@ -22,6 +22,7 @@ from health import check_all
 from moss_checkin import run_moss_sso_checkin, apply_chain_token_for_health
 from libtv_checkin import run_libtv_checkin
 from workbuddy_checkin import run_workbuddy_checkin
+from modelscope_checkin import run_modelscope_checkin
 
 logger = logging.getLogger(__name__)
 
@@ -157,6 +158,9 @@ def run_site_checkin(site: dict, state: dict | None = None) -> tuple[bool, str]:
 
     if auth_mode == "workbuddy":
         return run_workbuddy_checkin(site, state or {})
+
+    if auth_mode == "modelscope":
+        return run_modelscope_checkin(site, state or {})
 
     return run_curl_checkin(site)
 

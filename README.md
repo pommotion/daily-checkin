@@ -43,12 +43,14 @@ curl_bash 回放模式已能覆盖绝大多数签到场景。
 | Secret 名 | 说明 |
 |---|---|
 | `HITUN_CURL_BASH` | 海豚湾签到 curl bash |
-| `RENZHE_EMAIL` | 忍者云登录邮箱 |
-| `RENZHE_PASSWD` | 忍者云登录密码 |
-| `LISTENHUB_FREE_CURL_BASH` | ListenHub 免费账号签到 curl bash |
 | `LISTENHUB_PRO_CURL_BASH` | ListenHub 会员账号签到 curl bash |
+| `MOSS_REFRESH_TOKEN` | Moss-API SSO 刷新链种子（轮换链在 state，一般无需动） |
+| `LIBTV_CREDENTIALS` | LibTV 每日登录积分，JSON `{"token","webid"}` |
+| `WORKBUDDY_CREDENTIALS` | WorkBuddy 兜底种子，JSON accessToken 等（轮换链在 state） |
+| `MODELSCOPE_CREDENTIALS` | 魔搭每日登录魔粒，JSON `{"cookie":"<整段 Cookie 头>"}` |
 
-<!-- 已移除：IDKEY_CURL_BASH — Cloudflare cf_clearance IP 绑定，GitHub Actions 无法绕过 -->
+<!-- 已停用：LISTENHUB_FREE_CURL_BASH（JWT 过期不续，sites.py enabled: False）
+     已移除：RENZHE_* / IDKEY_CURL_BASH — Passkey / cf_clearance IP 绑定无法自动化 -->
 
 #### 推送配置
 

@@ -80,6 +80,14 @@ SITES = [
         "credentials_env": "WORKBUDDY_CREDENTIALS",
         "enabled": True,
     },
+    {
+        "name": "ModelScope",
+        "auth_mode": "modelscope",
+        # MODELSCOPE_CREDENTIALS = {"cookie": "<modelscope.cn 整段 Cookie 头>"}
+        # 每日登录 200 魔粒（绑阿里云 +50），访问魔粒页即触发，无领取按钮
+        "credentials_env": "MODELSCOPE_CREDENTIALS",
+        "enabled": True,
+    },
 ]
 
 
@@ -106,7 +114,7 @@ def get_enabled_sites() -> list[dict]:
                 site_copy["refresh_token"] = token
                 # 复用 health.py 的 JWT 预警：refresh_token 是 JWT
                 site_copy["curl_bash"] = "Bearer " + token
-        elif site.get("auth_mode") == "libtv":
+        elif site.get("auth_mode") == "libtv" or site.get("auth_mode") == "modelscope":
             creds = os.getenv(site["credentials_env"], "")
             if not creds:
                 continue
@@ -139,6 +147,9 @@ def get_disabled_reasons() -> list[str]:
         elif site.get("auth_mode") == "libtv":
             if not os.getenv(site["credentials_env"], ""):
                 reasons.append(f"⚠️ {site['name']} — Secret {site['credentials_env']} 未配置（token/webid JSON）")
+        elif site.get("auth_mode") == "modelscope":
+            if not os.getenv(site["credentials_env"], ""):
+                reasons.append(f"⚠️ {site['name']} — Secret {site['credentials_env']} 未配置（网页 Cookie JSON）")
         elif site.get("auth_mode") == "workbuddy":
             if not os.getenv(site["credentials_env"], ""):
                 reasons.append(
