@@ -1,7 +1,7 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": 26,
+      "jwt_days_left": 25,
       "jwt_exp": "2026-11-01T20:11:00+00:00"
     },
     "ListenHub-免费": {
@@ -13,23 +13,18 @@
       "jwt_exp": "2026-09-01T21:03:39+00:00"
     },
     "海豚湾": {
-      "cf_days_left": -4,
+      "cf_days_left": -5,
       "cf_fingerprint": "bf8d73e859c7b15d",
       "cf_first_seen": "2026-08-02"
     }
   },
-  "last_run_at": "2026-10-06T06:35:10.841249+08:00",
+  "last_run_at": "2026-10-07T04:56:29.625368+08:00",
   "libtv": {},
   "moss_sso": {
-    "rt_blob": "KAnwq/t5rZOX4iBK2MH/RxmBBlQIsk8ewNcfZrruo9T6PUxRdvmwsdU5mCkXVtKf3izwYY/66HsVhGHD/p/qT3HiSq+JWccwDaaWVy1pO05z/oXAhEZfH5pmoXlbMWK4T8s/sDf8JBzKE0+GBoO62IzrNait3p1Fc5qCktybjOIxuHGoIsS/7PCa+eVUmriFbA+BKP/+N/MeFh6Lpiex+McGvLOxewgULMmNyzOArxDZ5iD38624KyRgWhoUT0rpASqHboEO9/4wsu66puXMhjcoF+Hs96Gz38aOcKXYfEtuGRTFZNJ3uzxkO1hYys6maXcMac4IXjl5VeeMOLAGdiOY+Sfb5UYbRUmV7vcO/Qvg2PomJI4iJ8ka/ZGQFP4xn9ttU6iN4Fn3qP4cfMeCCjWE8Wqa62W2vlyCtzyJqE91csBUT3kDl71bvzI0jCaxqw0h2ORY7ZO+LNO52Wbu0ihwXuCG1K/k6g791FUfXU8/n7gRYIPowg==",
-    "updated_at": "2026-10-06 06:34"
+    "rt_blob": "10UzeqcNtAJZnE96cSBtD6psnGY1jBOC2hYZhbvGvPQDcxeyYuf1e96+K8LW8SLzbZ0i8jDP44AkFZtV1dY14PvFTl3qTux0HVvC6Z6PtiD8LXd5Ol8Wrj9lzQX/XKVo7OGN0zrBV0+Ufl09WOi5oIchUUZ0GlCR51Fuu1Bbi/pZwtescxy/vbOktHYhwuSeONWiqh9dO+c4dSnLLlmZtVvjjeNeEPdpDfimJSnUVfnaL1d0DLWckRnNZqrLMaMD4xRekne+xxUiqeNIE25q5Qm1tXcCDc8kZMrci51DVhoF1AC6PiyQeW0IUCuTxEuQXs0rVA7JIiLDiRTJpsvFNJSgW4iaLEMpsVITpL8VgaGYVoYU5haT4rWeo+KztE+Q9DTpYQeKv+FWJwj7nP4eOnjDF+jtopLx/RHfccysKOecE34ivv+9teVQC5XlpdRi4K3bUl/kRMo6xsJoHzbUaNVZXFIHnGNtp6EqR3mnpFIs8jmVHT3a9Q==",
+    "updated_at": "2026-10-07 04:56"
   },
   "runs": [
-    {
-      "date": "2026-09-07",
-      "fail": 0,
-      "success": 3
-    },
     {
       "date": "2026-09-08",
       "fail": 0,
@@ -174,23 +169,28 @@
       "date": "2026-10-06",
       "fail": 0,
       "success": 6
+    },
+    {
+      "date": "2026-10-07",
+      "fail": 0,
+      "success": 6
     }
   ],
   "sites": {
     "LibTV": {
       "fail_streak": 0,
-      "last_run": "2026-10-06",
-      "last_success": "2026-10-06",
+      "last_run": "2026-10-07",
+      "last_success": "2026-10-07",
       "total_fails": 0,
-      "total_runs": 11
+      "total_runs": 12
     },
     "ListenHub-会员": {
       "fail_streak": 0,
-      "last_run": "2026-10-06",
-      "last_success": "2026-10-06",
+      "last_run": "2026-10-07",
+      "last_success": "2026-10-07",
       "recovered_at": "2026-09-04",
       "total_fails": 4,
-      "total_runs": 70
+      "total_runs": 71
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -201,34 +201,34 @@
     },
     "ModelScope": {
       "fail_streak": 0,
-      "last_run": "2026-10-06",
-      "last_success": "2026-10-06",
+      "last_run": "2026-10-07",
+      "last_success": "2026-10-07",
       "total_fails": 0,
-      "total_runs": 11
+      "total_runs": 12
     },
     "Moss-API": {
       "fail_streak": 0,
-      "last_run": "2026-10-06",
-      "last_success": "2026-10-06",
+      "last_run": "2026-10-07",
+      "last_success": "2026-10-07",
       "recovered_at": "2026-09-04",
       "total_fails": 8,
-      "total_runs": 46
+      "total_runs": 47
     },
     "WorkBuddy": {
       "fail_streak": 0,
-      "last_run": "2026-10-06",
-      "last_success": "2026-10-06",
+      "last_run": "2026-10-07",
+      "last_success": "2026-10-07",
       "recovered_at": "2026-09-26",
       "total_fails": 2,
-      "total_runs": 13
+      "total_runs": 14
     },
     "海豚湾": {
       "fail_streak": 0,
-      "last_run": "2026-10-06",
-      "last_success": "2026-10-06",
+      "last_run": "2026-10-07",
+      "last_success": "2026-10-07",
       "recovered_at": "2026-08-29",
       "total_fails": 1,
-      "total_runs": 70
+      "total_runs": 71
     }
   },
   "version": 1
