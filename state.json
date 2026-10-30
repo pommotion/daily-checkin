@@ -1,7 +1,7 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": 2,
+      "jwt_days_left": 1,
       "jwt_exp": "2026-11-01T20:11:00+00:00"
     },
     "ListenHub-免费": {
@@ -13,23 +13,18 @@
       "jwt_exp": "2026-09-01T21:03:39+00:00"
     },
     "海豚湾": {
-      "cf_days_left": -28,
+      "cf_days_left": -29,
       "cf_fingerprint": "bf8d73e859c7b15d",
       "cf_first_seen": "2026-08-02"
     }
   },
-  "last_run_at": "2026-10-30T05:03:19.537928+08:00",
+  "last_run_at": "2026-10-31T04:43:02.075942+08:00",
   "libtv": {},
   "moss_sso": {
-    "rt_blob": "KJrteqmNlOQtpLAQ2sb3E9kb/ZzxvjEgGSWw/WT4P/h4CmQCyrPAowM4wuznmPekcJvIGuWUSwF4fI7HInEuvepU2V/3SRTYHaB2huicSlP4Z7A0fsmSvvSZdGveEV1O6OyIOVUOiD1t4wP8E+eck++ixWL4oyvD1N6vJXmUEVhmUR/UvG3n5JkC5VJydGugM1BSvPuqH/OMM46dX+7Eoeoe4Mel90bDdmByUMLYqQXejL0sLzBFUGIHMoo9ZjYy9+eSn5KuPZTuW39tni2Ro8x8z8KFECxT9GyR30y2AiZYS+aHFghf6bfOF2qBRSa1u87eWRAFec11jzetB6jDjXuiTFER989YW3cYHp7YRMBKjA/5qMwv5Np40FBJ0TWDxD8+Snr2Px3HuB5qqsO8gB9yVw2TG9N/QPBezhd28x9mpFE5qQi9g/pGmvFVIXL5nrFK1R+Ke+IOD81rMyPqvOAFo/lWPqiYlF/m1KkEpAfcQ7tNBP+QkA1o6Irg7kAYt4ZHcl7Pal/NxD7SSQ5wxfBHomK0PRdNZFtQDivFX+IM9NBogrGdC/Q09dmABAOhQMC0j6XAe7kkfJbzJphWZbMdyTgSXVKUUHXLksSeo2WsZdpIujjI8c5rm5PO24AoHvac",
-    "updated_at": "2026-10-30 05:03"
+    "rt_blob": "2XSpbivwHpxGBR9ojDukdk3KewlOHtjTLgsdTSA91PkdHEpGFYdpzn4/rsjj6fXzZfD72X/7+AHl/dXJC1/GijZjG++C2+ZdtQH05kk2xOT5r0guu+7pv6YqDUIdeRwQQPka0yNIK1I4s2OKvoieeIE6hyRoa6rNhGG404wtEbpbdBr+0kDMuIN8HQaWqu/CoxzKdKu9mEAszAEsiurhS6Wt6AF09aTy55wWK3woMtLEgW19QZyimrRYqXm/fi9i25TIfC35mAzW3t/mCWhJHwUehsufzf+tv5OJdVg/WPOR2fAo+3kngEktcNDZSGWu4Dicz63SJfC9k63zhNSM+fmOXBQXpT37aP016lG2xd4prXIk3c/pvb38+Hr0xaKhFcZl3218DovCpwhlRdfoq3b5tRNaVHXK/0B2JdF6XntmeWxMdfONeGkAdbs7rrGtl09Bk77ufgDpBVgHku07mc9OatnGdKjHL6NC1ugqfDwPOjbg1G9KXO76EBy2T4YD6Wi+Py92GFGNv8x2AZUM3HxvxS2wzzrEMIVGnKgZOq5ibrbRP3aayD8nyq2Fy3kblkUTyVVxz+RLbsL8kivkg9DUzqycUELw3zugb+WPB4CW2MSJ8oGMSd199dGv7yfZ/Brq",
+    "updated_at": "2026-10-31 04:42"
   },
   "runs": [
-    {
-      "date": "2026-10-01",
-      "fail": 0,
-      "success": 6
-    },
     {
       "date": "2026-10-02",
       "fail": 0,
@@ -174,23 +169,28 @@
       "date": "2026-10-30",
       "fail": 2,
       "success": 4
+    },
+    {
+      "date": "2026-10-31",
+      "fail": 2,
+      "success": 4
     }
   ],
   "sites": {
     "LibTV": {
       "fail_streak": 0,
-      "last_run": "2026-10-30",
-      "last_success": "2026-10-30",
+      "last_run": "2026-10-31",
+      "last_success": "2026-10-31",
       "total_fails": 0,
-      "total_runs": 35
+      "total_runs": 36
     },
     "ListenHub-会员": {
       "fail_streak": 0,
-      "last_run": "2026-10-30",
-      "last_success": "2026-10-30",
+      "last_run": "2026-10-31",
+      "last_success": "2026-10-31",
       "recovered_at": "2026-09-04",
       "total_fails": 4,
-      "total_runs": 94
+      "total_runs": 95
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -201,35 +201,35 @@
     },
     "ModelScope": {
       "fail_streak": 0,
-      "last_run": "2026-10-30",
-      "last_success": "2026-10-30",
+      "last_run": "2026-10-31",
+      "last_success": "2026-10-31",
       "recovered_at": "2026-10-30",
       "total_fails": 1,
-      "total_runs": 35
+      "total_runs": 36
     },
     "Moss-API": {
-      "fail_streak": 1,
-      "last_run": "2026-10-30",
+      "fail_streak": 2,
+      "last_run": "2026-10-31",
       "last_success": "2026-10-29",
       "recovered_at": "2026-09-04",
-      "total_fails": 9,
-      "total_runs": 70
+      "total_fails": 10,
+      "total_runs": 71
     },
     "WorkBuddy": {
       "fail_streak": 0,
-      "last_run": "2026-10-30",
-      "last_success": "2026-10-30",
+      "last_run": "2026-10-31",
+      "last_success": "2026-10-31",
       "recovered_at": "2026-09-26",
       "total_fails": 2,
-      "total_runs": 37
+      "total_runs": 38
     },
     "海豚湾": {
-      "fail_streak": 8,
-      "last_run": "2026-10-30",
+      "fail_streak": 9,
+      "last_run": "2026-10-31",
       "last_success": "2026-10-22",
       "recovered_at": "2026-08-29",
-      "total_fails": 9,
-      "total_runs": 94
+      "total_fails": 10,
+      "total_runs": 95
     }
   },
   "version": 1
