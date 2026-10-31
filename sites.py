@@ -18,7 +18,10 @@ SITES = [
         "already_keywords": ["已签到", "今日已签", "已经签到", "签到过", "续命过", "似乎已经"],
         "auth_fail_keywords": ["未登录", "未注册", "请先登录", "登录失败", "token", "授权"],
         "cf_fail_keywords": ["cloudflare", "turnstile", "captcha", "验证码", "just a moment"],
-        "enabled": True,
+        # 2026-10-31 停用：Cloudflare 收紧 cf_clearance IP 绑定校验，GitHub runner IP
+        # 与签发 IP 不一致必被拦（连续失败 11 天实证）。已迁移本地 launchd：
+        # ~/AgentWork/hitun-local-checkin/（每天本地 09:12/18:12 各一次，走 Clash 7890）
+        "enabled": False,
     },
     # 已移除：忍者云（Passkey 强制验证，无法自动化）
     # 已移除：idkey（Cloudflare cf_clearance IP 绑定，GitHub Actions 无法绕过）
