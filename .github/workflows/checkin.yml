@@ -131,16 +131,26 @@ jobs:
           """
           desc = desc[:5000]
 
+          # 自动发现第一个 team，工单建进去（无需预知 team 名）
+          q_teams = '{"query": "{ teams(first: 1) { nodes { id name } } }"}'
+          req = urllib.request.Request(
+              "https://api.linear.app/graphql",
+              data=q_teams.encode(),
+              headers={"Authorization": key, "Content-Type": "application/json"})
+          team = json.load(urllib.request.urlopen(req, timeout=30))["data"]["teams"]["nodes"][0]
+          team_id = team["id"]
+          print("using team:", team["name"])
+
           query = """
-          mutation($title: String!, $desc: String!) {
-            issueCreate(input: { title: $title, description: $desc }) {
+          mutation($title: String!, $desc: String!, $teamId: String!) {
+            issueCreate(input: { title: $title, description: $desc, teamId: $teamId }) {
               success
               issue { id identifier url }
             }
           }"""
           payload = {"query": query,
                      "variables": {"title": f"[daily-checkin] 签到失败 run {run_id}",
-                                   "desc": desc}}
+                                   "desc": desc, "teamId": team_id}}
           req = urllib.request.Request(
               "https://api.linear.app/graphql",
               data=json.dumps(payload).encode(),
