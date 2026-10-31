@@ -234,7 +234,7 @@ def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
         r2 = s.get(SSO_START_URL, timeout=30)
     except requests.RequestException as e:
         return False, f"❌ {name}网络异常: {e}"
-    m = re.search(r"url=(https://mossland\.studio[^\"']+)", r2.text)
+    m = re.search(r"url=(https://(?:mossland\.studio|create\.moss\.cn)[^\"']+)", r2.text)
     if not m:
         return _fail(f"❌ {name}sso/start 响应异常 HTTP {r2.status_code}")
     authorize_url = m.group(1).replace("&amp;", "&")
@@ -260,7 +260,7 @@ def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
                 r2 = s.get(SSO_START_URL, timeout=30)
             except requests.RequestException as e:
                 return False, f"❌ {name}网络异常: {e}"
-            m = re.search(r"url=(https://mossland\.studio[^\"']+)", r2.text)
+            m = re.search(r"url=(https://(?:mossland\.studio|create\.moss\.cn)[^\"']+)", r2.text)
             if not m:
                 return _fail(f"❌ {name}重试时 sso/start 响应异常 HTTP {r2.status_code}")
             authorize_url = m.group(1).replace("&amp;", "&")
