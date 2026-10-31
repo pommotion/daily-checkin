@@ -84,3 +84,67 @@ jobs:
       actions: write
     steps:
       - uses: liskin/gh-workflow-keepalive@v1.2.1
+
+  # 签到失败 → 建 Linear 工单（只在 checkin job 失败时跑）
+  # 标题带 run ID 天然幂等；去重由本地自动化处理（同 run 已有工单则跳过）
+  notify-linear:
+    name: Notify Linear
+    if: ${{ failure() }}
+    needs: checkin
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Create Linear issue
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_SERVER_URL: ${{ github.server_url }}
+          GH_REPO_FULL: ${{ github.repository }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, os, urllib.request, urllib.parse
+
+          key = os.environ["LINEAR_API_KEY"]
+          run_id = os.environ["GH_RUN_ID"]
+          run_url = f"{os.environ['GH_SERVER_URL']}/{os.environ['GH_REPO_FULL']}/actions/runs/{run_id}"
+
+          # 先拉本次 run 的日志片段，把失败站点一并写进工单
+          failed_sites = "见 run 日志（无法在 runner 内自取，由处理人查）"
+          desc = f"""## 签到失败工单（自动生成）
+
+          **仓库**: pommotion/daily-checkin
+          **失败 run**: {run_url}
+          **失败站点**: {failed_sites}
+
+          ## 处理 SOP（给 ego 执行）
+          1. gh run view {run_id} --log -R pommotion/daily-checkin 看失败原因分类：
+             - Cookie/JWT 过期（401/登录失效）→ 第 2 步
+             - Cloudflare 拦截 + 海豚湾 → 忽略并关单（已迁本地 launchd，GH 侧已禁用）
+             - 代码/接口改版 → 只报告，不自行改代码
+          2. Cookie 过期修复: ego-browser 打开站点（继承登录态）→ 过人机验证 →
+             CDP 读全套 Cookie（含 HttpOnly）→ 重建 curl →
+             gh secret set <SECRET> -R pommotion/daily-checkin
+             Secret 映射: 海豚湾=HITUN_CURL_BASH, ListenHub会员=LISTENHUB_PRO_CURL_BASH
+          3. 修复后触发验证: gh workflow run daily-checkin -R pommotion/daily-checkin --ref main
+             60s 后确认新 run success → 本工单标 Done
+          4. 卡住（扫码/验证码/付费/改代码）→ 工单加「blocked」标签 + Telegram 告警，交还老板
+          """
+          desc = desc[:5000]
+
+          query = """
+          mutation($title: String!, $desc: String!) {
+            issueCreate(input: { title: $title, description: $desc }) {
+              success
+              issue { id identifier url }
+            }
+          }"""
+          payload = {"query": query,
+                     "variables": {"title": f"[daily-checkin] 签到失败 run {run_id}",
+                                   "desc": desc}}
+          req = urllib.request.Request(
+              "https://api.linear.app/graphql",
+              data=json.dumps(payload).encode(),
+              headers={"Authorization": key, "Content-Type": "application/json"})
+          resp = json.load(urllib.request.urlopen(req, timeout=30))
+          print("linear resp:", json.dumps(resp, ensure_ascii=False)[:500])
+          PYEOF
