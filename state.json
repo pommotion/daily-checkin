@@ -1,7 +1,7 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": -3,
+      "jwt_days_left": -4,
       "jwt_exp": "2026-11-01T20:11:00+00:00"
     },
     "ListenHub-免费": {
@@ -9,7 +9,7 @@
       "jwt_exp": "2026-08-30T00:38:13+00:00"
     },
     "Moss-API": {
-      "jwt_days_left": 6,
+      "jwt_days_left": -65,
       "jwt_exp": "2026-09-01T21:03:39+00:00"
     },
     "海豚湾": {
@@ -18,17 +18,12 @@
       "cf_first_seen": "2026-10-31"
     }
   },
-  "last_run_at": "2026-11-04T05:43:28.828655+08:00",
+  "last_run_at": "2026-11-05T05:50:01.367173+08:00",
   "libtv": {},
   "moss_sso": {
     "updated_at": "2026-11-03 07:27"
   },
   "runs": [
-    {
-      "date": "2026-10-09",
-      "fail": 0,
-      "success": 6
-    },
     {
       "date": "2026-10-10",
       "fail": 0,
@@ -173,23 +168,28 @@
       "date": "2026-11-04",
       "fail": 2,
       "success": 3
+    },
+    {
+      "date": "2026-11-05",
+      "fail": 2,
+      "success": 3
     }
   ],
   "sites": {
     "LibTV": {
       "fail_streak": 0,
-      "last_run": "2026-11-04",
-      "last_success": "2026-11-04",
+      "last_run": "2026-11-05",
+      "last_success": "2026-11-05",
       "total_fails": 0,
-      "total_runs": 43
+      "total_runs": 44
     },
     "ListenHub-会员": {
-      "fail_streak": 3,
-      "last_run": "2026-11-04",
+      "fail_streak": 4,
+      "last_run": "2026-11-05",
       "last_success": "2026-11-01",
       "recovered_at": "2026-09-04",
-      "total_fails": 7,
-      "total_runs": 102
+      "total_fails": 8,
+      "total_runs": 103
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -200,27 +200,27 @@
     },
     "ModelScope": {
       "fail_streak": 0,
-      "last_run": "2026-11-04",
-      "last_success": "2026-11-04",
+      "last_run": "2026-11-05",
+      "last_success": "2026-11-05",
       "recovered_at": "2026-10-30",
       "total_fails": 1,
-      "total_runs": 43
+      "total_runs": 44
     },
     "Moss-API": {
-      "fail_streak": 1,
-      "last_run": "2026-11-04",
+      "fail_streak": 2,
+      "last_run": "2026-11-05",
       "last_success": "2026-11-03",
       "recovered_at": "2026-10-31",
-      "total_fails": 11,
-      "total_runs": 78
+      "total_fails": 12,
+      "total_runs": 79
     },
     "WorkBuddy": {
       "fail_streak": 0,
-      "last_run": "2026-11-04",
-      "last_success": "2026-11-04",
+      "last_run": "2026-11-05",
+      "last_success": "2026-11-05",
       "recovered_at": "2026-09-26",
       "total_fails": 2,
-      "total_runs": 45
+      "total_runs": 46
     },
     "海豚湾": {
       "fail_streak": 11,
