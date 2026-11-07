@@ -1,8 +1,8 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": -6,
-      "jwt_exp": "2026-11-01T20:11:00+00:00"
+      "jwt_days_left": 51,
+      "jwt_exp": "2026-12-29T17:47:28+00:00"
     },
     "ListenHub-免费": {
       "jwt_days_left": -4,
@@ -18,17 +18,12 @@
       "cf_first_seen": "2026-10-31"
     }
   },
-  "last_run_at": "2026-11-08T04:11:10.532085+08:00",
+  "last_run_at": "2026-11-08T04:47:29.174041+08:00",
   "libtv": {},
   "moss_sso": {
     "updated_at": "2026-11-03 07:27"
   },
   "runs": [
-    {
-      "date": "2026-10-13",
-      "fail": 0,
-      "success": 6
-    },
     {
       "date": "2026-10-14",
       "fail": 0,
@@ -173,6 +168,11 @@
       "date": "2026-11-08",
       "fail": 2,
       "success": 3
+    },
+    {
+      "date": "2026-11-08",
+      "fail": 1,
+      "success": 4
     }
   ],
   "sites": {
@@ -181,15 +181,15 @@
       "last_run": "2026-11-08",
       "last_success": "2026-11-08",
       "total_fails": 0,
-      "total_runs": 47
+      "total_runs": 48
     },
     "ListenHub-会员": {
-      "fail_streak": 7,
+      "fail_streak": 0,
       "last_run": "2026-11-08",
-      "last_success": "2026-11-01",
-      "recovered_at": "2026-09-04",
+      "last_success": "2026-11-08",
+      "recovered_at": "2026-11-08",
       "total_fails": 11,
-      "total_runs": 106
+      "total_runs": 107
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -204,15 +204,15 @@
       "last_success": "2026-11-08",
       "recovered_at": "2026-10-30",
       "total_fails": 1,
-      "total_runs": 47
+      "total_runs": 48
     },
     "Moss-API": {
-      "fail_streak": 5,
+      "fail_streak": 6,
       "last_run": "2026-11-08",
       "last_success": "2026-11-03",
       "recovered_at": "2026-10-31",
-      "total_fails": 15,
-      "total_runs": 82
+      "total_fails": 16,
+      "total_runs": 83
     },
     "WorkBuddy": {
       "fail_streak": 0,
@@ -220,7 +220,7 @@
       "last_success": "2026-11-08",
       "recovered_at": "2026-09-26",
       "total_fails": 2,
-      "total_runs": 49
+      "total_runs": 50
     },
     "海豚湾": {
       "fail_streak": 11,
