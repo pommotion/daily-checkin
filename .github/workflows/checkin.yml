@@ -65,13 +65,21 @@ jobs:
       #   1. 保留跨天状态（连续失败计数、凭证首见日期）
       #   2. 保活 — 仓库每天有 commit，不会触发 GitHub「60 天无活动自动禁用 schedule」
       - name: Commit state
+        # 必须 always()：严格模式下站点失败会让上一步退出码=1，
+        # 若默认的 success() 生效，写回 state.json 会被跳过，
+        # 导致 token 轮换链丢失（明天全站凭证失效）。宁可 job 红，也要写回。
+        if: always()
         run: |
+          # Checkout 失败时目录里没有 git 仓库，直接跳过（不要因为写回把 job 拖成奇怪失败）
+          if [ ! -d .git ]; then echo "⚠️ 无 git 仓库（checkout 未完成），跳过 state 写回"; exit 0; fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state.json
           git diff --staged --quiet && echo "state 无变化，跳过提交" && exit 0
           git commit -m "chore: update state $(date -u +%Y-%m-%d)"
-          git push
+          # 并发/重跑时远端可能领先，先 rebase 再推，避免 push 被拒
+          git pull --rebase --autostash origin ${GITHUB_REF_NAME:-main} || true
+          git push || echo "⚠️ push 失败，下一轮会重试（state 已在本次运行内生效）"
 
   # 第二道保险。
   # commit 保活靠 state.json 变化，万一某段时间 state 恰好一直不变（或 commit 步骤失败），
