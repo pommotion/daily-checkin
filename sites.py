@@ -58,13 +58,13 @@ SITES = [
     },
     {
         "name": "Moss-API",
+        # 2026-11-16 改版：不再有签到按钮，改为「账号密码登录即触发每日 50 积分发放」
+        # 旧 moss_sso 静默重放链路已死（域名迁 moss.cn、refresh 端点 404）
         "auth_mode": "moss_sso",
-        "refresh_token_env": "MOSS_REFRESH_TOKEN",
-        # 挂到 curl_bash_env 仅为让 health.py 的 JWT 到期预警提示正确的 Secret 名
-        "curl_bash_env": "MOSS_REFRESH_TOKEN",
-        "success_keywords": ["登录成功"],
-        "already_keywords": ["已领", "已到账"],
-        "auth_fail_keywords": ["过期", "无效", "登录页"],
+        "credentials_env": "MOSS_CREDENTIALS",
+        "success_keywords": ["登录完成"],
+        "already_keywords": ["已发放", "持平"],
+        "auth_fail_keywords": ["登录被拒", "未下发", "401"],
         "cf_fail_keywords": [],
         "enabled": True,
     },
@@ -122,12 +122,11 @@ def get_enabled_sites() -> list[dict]:
             site_copy["email"] = email
             site_copy["passwd"] = passwd
         elif site.get("auth_mode") == "moss_sso":
-            # moss_sso：env 只是种子，state 链条也可用，因此无 env 也启用
-            token = os.getenv(site["refresh_token_env"], "")
-            if token:
-                site_copy["refresh_token"] = token
-                # 复用 health.py 的 JWT 预警：refresh_token 是 JWT
-                site_copy["curl_bash"] = "Bearer " + token
+            # 2026-11-16 改版：改为账号密码登录（登录即发放），不再用 refresh_token
+            creds = os.getenv(site.get("credentials_env", "MOSS_CREDENTIALS"), "")
+            if not creds:
+                continue
+            site_copy["credentials"] = creds
         elif site.get("auth_mode") == "runninghub":
             # runninghub：env 只是种子，state 里的滑动窗口令牌也可用，故无 env 也启用
             token = os.getenv(site.get("refresh_token_env", ""), "")

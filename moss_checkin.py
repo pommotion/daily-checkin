@@ -1,301 +1,230 @@
 #!/usr/bin/env python3
-"""Moss API 每日登录签到 — SSO 静默重放 + 令牌轮换持久化。
+"""Moss 每日登录奖励 — 账号密码直登 + 钱包发放验证。
 
-原理（2026-08-26 实测逆向）:
-  platform.mosi.cn 的每日 +100 积分由「登录完成（新令牌签发）」触发，
-  已有会话刷新页面不发放。登录走 Mossland SSO，可用 cookie 重放:
+原理（2026-11-16 实测逆向，取代 2026-08-26 的 SSO 静默重放方案）:
 
-  1. POST mossland.studio/api/v1/auth/token/refresh   (Cookie: refresh_token=...)
-     → 换 1h access_token；**每次成功刷新会轮换 refresh_token（Set-Cookie）**，
-       旧 token 数次复用后被拉黑（auth_token_blacklisted）。
-  2. GET  platform.mosi.cn/portal-api/auth/studio/sso/start
-     → HTML meta refresh 里带 authorize URL
-  3. GET  mossland.studio/api/v1/auth/platform/sso/authorize?...  (Cookie: access_token=...)
-     → 302 回 platform.mosi.cn/api/v1/auth/studio/sso/callback?code&state
-     → 服务端此刻完成发券
-     【2026-08-29 改版】回调页不再 302、不再带 #studio_sso_session 片段，
-       改为直接 200 返回引导页，平台令牌内联在
-       localStorage.setItem("mosi-platform:auth", {JSON}) 中；
-       每日奖励同期从 100 改为 50（活动「每日登录奖励0830」）。
-       另：mossland/mosi 挂了阿里云 WAF（acw_tc/_abfpc），authorize
-       偶发被软拦到登录页，需换新 state 重试。
-  4. GET  platform.mosi.cn/portal-api/me (Bearer 新令牌) 验证 + 查余额
+  旧链路已全部失效：
+    - platform.mosi.cn 域名迁移至 platform.moss.cn
+    - mossland.studio/api/v1/auth/token/refresh → 404
+    - 平台已**取消签到按钮**，改为「登录动作本身触发发放」
 
-轮换持久化（应对 1 的轮换）:
-  - 活跃 token 存 state['moss_sso']['rt_blob']：AES-256-GCM 加密（密钥在
-    Secret MOSS_RT_ENC_KEY），state.json 每日随仓库提交 → 跨天可用。
-  - Secret MOSS_REFRESH_TOKEN 只是「种子」（首次运行或链条断裂时启用）。
-  - 拿到轮换新 token 后立即落盘，再做 SSO，最大限度避免链条丢失。
+  现行可自动化链路（全部 2026-11-16 实测通过）:
+
+    1. POST https://platform.moss.cn/portal-api/auth/account/login
+       body: {"kind":"email","account":<邮箱>,"password":<密码>}
+       → {"is_new_user": false}
+       → Set-Cookie:
+            moss_studio_prod_access_token  (Max-Age 1209600 = 14 天)
+            moss_studio_prod_session_scope (Max-Age 1814400 = 21 天)
+
+    2. GET  https://create.moss.cn/api/v1/wallet   (带上面的 cookie)
+       → data.credit_type_balances[credit_type=bonus].grant_sources[]
+         其中 grant_source == "log_in_daily_0811" 
+         grant_source_desc == "每日登录奖励"
+         remaining_credit 为赠送积分余额（5000 = 50.00 积分）
+
+  关键结论:
+    - 每日奖励 50 积分，**登录那一刻服务端签发**，不需要点任何按钮
+    - 同一天重复登录是幂等的，不会叠加（实测两次登录 total 不变）
+    - 因此每天跑一次本脚本，即为「每日签到」
+
+  验证方式（诚实报告，不谎报到账）:
+    - 拿不到「今日是否新增」的流水接口（wallet/transactions 等均 404），
+      故只能读 grant_sources 里的累计余额并记录到 state，
+      与上次运行对比：增加了 → 报「+N 已到账」；持平 → 报「今日已发放，未重复计发」。
+    - 这样既不谎报，也能在连续多日持平时暴露异常。
+
+  凭证:
+    MOSS_CREDENTIALS = {"email": "...", "password": "..."}（JSON，支持数组多账号）
+    不再需要 MOSS_REFRESH_TOKEN / MOSS_RT_ENC_KEY（旧 SSO 链路的产物）。
 """
 from __future__ import annotations
 
-import base64
 import json
 import logging
-import re
-import urllib.parse
-from datetime import datetime, timezone, timedelta
+import os
 
 import requests
 
 logger = logging.getLogger(__name__)
 
-MOSSLAND_REFRESH_URL = "https://mossland.studio/api/v1/auth/token/refresh"
-SSO_START_URL = "https://platform.mosi.cn/portal-api/auth/studio/sso/start"
-ME_URL = "https://platform.mosi.cn/portal-api/me"
-TRANSACTIONS_URL = "https://platform.mosi.cn/portal-api/maas/credits/transactions"
-SUMMARY_URL = "https://platform.mosi.cn/portal-api/maas/credits/usage-summary"
-
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
 )
 
+LOGIN_URL = "https://platform.moss.cn/portal-api/auth/account/login"
+WALLET_URL = "https://create.moss.cn/api/v1/wallet"
+DAILY_GRANT_SOURCE = "log_in_daily_0811"
 
-# ---------------- AES-GCM（依赖 cryptography） ----------------
+# credit 以「1/100 积分」为单位存储：5000 == 50.00 积分
+CREDIT_UNIT = 100
 
-def _enc_key():
-    import os
-    raw = os.getenv("MOSS_RT_ENC_KEY", "")
+
+def _load_accounts(site: dict) -> list[dict]:
+    """从 MOSS_CREDENTIALS 读单账号或多账号，返回 [{email, password}]。"""
+    raw = os.getenv(site.get("credentials_env", "MOSS_CREDENTIALS"), "").strip()
     if not raw:
-        return None
+        return []
     try:
-        key = base64.b64decode(raw)
-        return key if len(key) == 32 else None
-    except Exception:
-        return None
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        logger.error(f"  [Moss] MOSS_CREDENTIALS JSON 解析失败: {e}")
+        return []
+    items = data if isinstance(data, list) else [data]
+    out = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        email = (it.get("email") or it.get("account") or "").strip()
+        password = (it.get("password") or "").strip()
+        if email and password:
+            out.append({"email": email, "password": password})
+    return out
 
 
-def _encrypt_token(token: str, key) -> str:
-    import os
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-    nonce = os.urandom(12)
-    ct = AESGCM(key).encrypt(nonce, token.encode(), None)
-    return base64.b64encode(nonce + ct).decode()
+def _mask(email: str) -> str:
+    """脱敏邮箱，避免日志泄露账号。"""
+    if "@" not in email:
+        return email[:2] + "***"
+    local, domain = email.split("@", 1)
+    keep = local[:1]
+    return f"{keep}***@{domain}"
 
 
-def _decrypt_token(blob: str, key) -> str | None:
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+def _fetch_daily_bonus(session: requests.Session) -> tuple[int | None, str]:
+    """读钱包里「每日登录奖励」的累计余额，返回 (credit 整数, 原始描述)。"""
+    r = session.get(WALLET_URL, timeout=30, headers={"Accept": "application/json"})
+    if r.status_code == 401:
+        return None, "钱包接口 401（登录态未生效）"
+    if r.status_code != 200:
+        return None, f"钱包接口 HTTP {r.status_code}"
     try:
-        raw = base64.b64decode(blob)
-        return AESGCM(key).decrypt(raw[:12], raw[12:], None).decode()
+        body = r.json()
     except Exception:
-        return None
+        return None, f"钱包响应非 JSON: {r.text[:120]}"
+
+    data = body.get("data") or {}
+    for bucket in data.get("credit_type_balances") or []:
+        for src in bucket.get("grant_sources") or []:
+            if src.get("grant_source") == DAILY_GRANT_SOURCE:
+                return int(src.get("remaining_credit") or 0), src.get("grant_source_desc", "")
+    # 没有该来源条目 = 从未发放过
+    return 0, "无每日登录奖励记录"
 
 
-def _load_active_token(site: dict, state: dict) -> tuple[str, str]:
-    """返回 (token, 来源)。优先 state 里的活跃链条，其次 env 种子。"""
-    blob = (state.get("moss_sso") or {}).get("rt_blob", "")
-    key = _enc_key()
-    if blob and key:
-        tok = _decrypt_token(blob, key)
-        if tok:
-            return tok, "state"
-    seed = site.get("refresh_token", "")
-    if seed:
-        return seed, "seed"
-    return "", ""
+def _run_one(site: dict, state: dict, acct: dict, idx: int, total: int) -> tuple[bool, str]:
+    display = site["name"] if total == 1 else f"{site['name']}[{idx + 1}]"
+    masked = _mask(acct["email"])
 
+    s = requests.Session()
+    s.headers.update({
+        "User-Agent": UA,
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/plain, */*",
+        "Origin": "https://platform.moss.cn",
+        "Referer": "https://platform.moss.cn/",
+    })
 
-def _persist_token(token: str, state: dict) -> bool:
-    """轮换后立即持久化。返回是否成功。"""
-    key = _enc_key()
-    if not key:
-        logger.warning("  [moss] 未配置 MOSS_RT_ENC_KEY，轮换 token 无法持久化（明天将回落种子→失效）")
-        return False
-    state.setdefault("moss_sso", {})["rt_blob"] = _encrypt_token(token, key)
-    state["moss_sso"]["updated_at"] = datetime.now(
-        timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
-    from state import save_state
-    save_state(state)  # 立即落盘，SSO 再失败也不丢链条
-    logger.info("  [moss] 轮换后的 refresh_token 已加密持久化")
-    return True
+    # ---- 1. 账号密码登录（这一步即触发每日登录奖励的签发）----
+    try:
+        r = s.post(
+            LOGIN_URL,
+            data=json.dumps({"kind": "email", "account": acct["email"], "password": acct["password"]}),
+            timeout=30,
+        )
+    except requests.RequestException as e:
+        return False, f"❌ {display}网络异常: {e}"
 
+    if r.status_code == 429:
+        return False, f"❌ {display}登录被限流 HTTP 429（登录过频，明日重试即可）"
+    if r.status_code != 200:
+        return False, f"❌ {display}登录失败 HTTP {r.status_code}: {r.text[:160]}"
 
-def _extract_rotated_token(resp) -> str | None:
-    """从 refresh 响应的 Set-Cookie 里取轮换后的 refresh_token。"""
-    for c in resp.cookies:
-        if c.name == "refresh_token" and c.value:
-            return c.value
-    # requests 未按 cookie jar 解析时的兜底：手解析头
-    sc = resp.headers.get("Set-Cookie", "")
-    m = re.search(r"refresh_token=([^;]+)", sc)
-    return m.group(1) if m else None
+    try:
+        login_body = r.json()
+    except Exception:
+        return False, f"❌ {display}登录响应非 JSON: {r.text[:160]}"
 
+    # 密码错误会返回 error 字段（实测 code/message 形式）
+    if isinstance(login_body, dict) and (login_body.get("code") or login_body.get("error")):
+        msg = login_body.get("message") or login_body.get("msg") or json.dumps(login_body, ensure_ascii=False)
+        return False, f"❌ {display}登录被拒: {str(msg)[:160]}"
 
-# ---------------- 主流程 ----------------
-
-def _fail(msg: str) -> tuple[bool, str]:
-    return False, (
-        f"{msg}\n"
-        "💡 请在浏览器重新登录 mossland.studio（密码登录有滑块验证码），\n"
-        "   然后让 ZCode 用 ego-browser 取新 refresh_token 更新 Secret"
+    has_token = any(
+        c.name == "moss_studio_prod_access_token" and c.value
+        for c in s.cookies
     )
+    if not has_token:
+        return False, (
+            f"❌ {display}登录未下发 moss_studio_prod_access_token"
+            f"（响应: {json.dumps(login_body, ensure_ascii=False)[:140]}）"
+        )
 
+    # ---- 2. 读钱包，确认每日登录奖励累计余额 ----
+    credit, desc = _fetch_daily_bonus(s)
+    if credit is None:
+        return False, f"❌ {display}登录成功但{desc}"
 
-def _decode_session_fragment(fragment: str) -> dict | None:
-    try:
-        raw = urllib.parse.unquote(fragment)
-        raw += "=" * (-len(raw) % 4)
-        data = json.loads(base64.urlsafe_b64decode(raw))
-        if isinstance(data, dict) and data.get("access_token"):
-            return data
-    except Exception:
-        pass
-    return None
+    points = credit / CREDIT_UNIT
 
+    # ---- 3. 与上次运行对比，诚实判定是否新增 ----
+    key = f"moss_daily_{masked}"
+    prev = (state.get("moss_daily") or {}).get(key)
+    prev_credit = prev.get("credit") if isinstance(prev, dict) else None
 
-def _extract_session_data(resp) -> dict | None:
-    """从 callback 响应提取平台令牌。
+    if prev_credit is None:
+        verdict = f"✅ {display}登录完成，每日登录奖励累计 {points:g} 积分（首次记录基线）"
+    elif credit > prev_credit:
+        delta = (credit - prev_credit) / CREDIT_UNIT
+        verdict = f"✅ {display}登录完成，每日登录奖励 +{delta:g} 积分已到账（累计 {points:g}）"
+    elif credit < prev_credit:
+        verdict = (
+            f"✅ {display}登录完成，累计 {points:g} 积分"
+            f"（较上次减少，说明期间有消耗；发放来源: {desc}）"
+        )
+    else:
+        verdict = (
+            f"⚠️ {display}登录完成，但每日登录奖励与上次持平（{points:g} 积分）"
+            " — 可能今日已发放过，或发放逻辑变更，连续 3 天持平需人工核查"
+        )
 
-    2026-08-29 改版后：callback 直接 200 返回 954 字节引导页，令牌内联在
-    <script>localStorage.setItem("mosi-platform:auth", {JSON}) 里
-    （旧版是 URL 片段 #studio_sso_session=<base64url>，保留兜底）。"""
-    m = re.search(
-        r'setItem\("mosi-platform:auth",\s*(?:JSON\.stringify\()?\s*(\{.*?\})\)',
-        resp.text, re.S)
-    if m:
-        try:
-            data = json.loads(m.group(1))
-            if isinstance(data, dict) and data.get("access_token"):
-                return data
-        except Exception:
-            pass
-    m = re.search(r"#studio_sso_session=([^\"'\s]+)", resp.text)
-    if m:
-        return _decode_session_fragment(m.group(1))
-    return None
-
-
-def _do_refresh(session, token: str):
-    """返回 (access_token, rotated_refresh_token|None, resp)。"""
-    r = session.post(MOSSLAND_REFRESH_URL, cookies={"refresh_token": token},
-                     timeout=30)
-    access_token = ""
-    try:
-        data = r.json()
-        if data.get("code") == 0:
-            access_token = data.get("data", {}).get("access_token", "")
-    except Exception:
-        pass
-    return access_token, _extract_rotated_token(r), r
-
-
-def apply_chain_token_for_health(sites: list[dict], state: dict) -> None:
-    """health.py 的 JWT 预警不适合 mossland 的轮换 token：链头每次轮换都是
-    「现在+7天」，remaining 永远 ≤ 阈值 7 → 天天误报。链条存在 = 每天都在自续，
-    无需预警（链断了签到会自己失败）；只有链条缺失时才看种子的固定 exp。"""
-    blob = (state.get("moss_sso") or {}).get("rt_blob", "")
-    if not blob:
-        return  # 无链条：保留种子 curl_bash，按种子 exp 预警（有意义）
-    for site in sites:
-        if site.get("auth_mode") == "moss_sso":
-            site.pop("curl_bash", None)  # 跳过 JWT 预警
+    # 写回基线
+    st = state.setdefault("moss_daily", {})
+    st[key] = {
+        "credit": credit,
+        "points": round(points, 2),
+        "grant_source": DAILY_GRANT_SOURCE,
+        "grant_source_desc": desc,
+    }
+    return True, verdict
 
 
 def run_moss_sso_checkin(site: dict, state: dict) -> tuple[bool, str]:
-    name = site["name"]
-    token, source = _load_active_token(site, state)
-    if not token:
-        return False, f"❌ {name}无可用凭证（state 链条与 MOSS_REFRESH_TOKEN 种子均缺失）"
+    """Moss 每日登录奖励（保留旧函数名，main.py 无需改动）。"""
+    accounts = _load_accounts(site)
+    if not accounts:
+        return False, (
+            f"❌ {site['name']}缺少凭证 — 请配置 Secret "
+            f"{site.get('credentials_env', 'MOSS_CREDENTIALS')}"
+            '（{"email": "...", "password": "..."}，多账号传 JSON 数组）'
+        )
 
-    s = requests.Session()
-    s.headers.update({"User-Agent": UA})
+    if len(accounts) == 1:
+        return _run_one(site, state, accounts[0], 0, 1)
 
-    # ---- 1. 刷新 access_token（带轮换处理） ----
-    logger.info(f"[{name}] → POST mossland auth/token/refresh（token 来源: {source}）")
-    try:
-        access_token, rotated, r1 = _do_refresh(s, token)
-    except requests.RequestException as e:
-        return False, f"❌ {name}网络异常: {e}"
+    lines, ok_all = [], True
+    for i, acct in enumerate(accounts):
+        ok, msg = _run_one(site, state, acct, i, len(accounts))
+        lines.append(msg)
+        ok_all = ok_all and ok
+    return ok_all, "\n".join(lines)
 
-    if not access_token and rotated:
-        # 旧 token 被拉黑但响应仍下发了新链（少见）——持久化后重试一次
-        _persist_token(rotated, state)
-        access_token, rotated2, r1b = _do_refresh(s, rotated)
-    if not access_token and source == "state":
-        # state 链条失效 → 回落种子
-        seed = site.get("refresh_token", "")
-        if seed and seed != token:
-            logger.info(f"  [{name}] state 链条失效，回落 Secret 种子")
-            access_token, rotated, r1 = _do_refresh(s, seed)
-            source = "seed"
-    if not access_token:
-        state.get("moss_sso", {}).pop("rt_blob", None)
-        return _fail(f"❌ {name}refresh 失败 HTTP {r1.status_code} — refresh_token 已过期/被拉黑")
-    logger.info("  refresh OK，拿到 1h access_token")
 
-    if rotated:
-        _persist_token(rotated, state)
+def apply_chain_token_for_health(sites, state: dict) -> None:
+    """兼容旧接口：新方案用账号密码，不再有可续期的 JWT，故不做 JWT 到期预警。
 
-    # ---- 2. SSO start → authorize URL ----
-    logger.info(f"[{name}] → GET sso/start")
-    try:
-        r2 = s.get(SSO_START_URL, timeout=30)
-    except requests.RequestException as e:
-        return False, f"❌ {name}网络异常: {e}"
-    m = re.search(r"url=(https://(?:mossland\.studio|create\.moss\.cn)[^\"']+)", r2.text)
-    if not m:
-        return _fail(f"❌ {name}sso/start 响应异常 HTTP {r2.status_code}")
-    authorize_url = m.group(1).replace("&amp;", "&")
-
-    # ---- 3. authorize（带 access_token cookie）→ 302 → callback ----
-    # WAF（acw_tc/_abfpc）偶发把 authorize 软拦到登录页，换新 state 重试一次
-    logger.info(f"[{name}] → GET authorize → callback")
-    r3 = None
-    for attempt in (1, 2):
-        try:
-            r3 = s.get(authorize_url, cookies={"access_token": access_token},
-                       timeout=30)
-        except requests.RequestException as e:
-            return False, f"❌ {name}网络异常: {e}"
-        reached = ("sso/callback" in r3.url
-                   or any("sso/callback" in (h.headers.get("Location") or "")
-                          for h in r3.history))
-        if reached:
-            break
-        if attempt == 1:
-            logger.info("  authorize 未达 callback（疑似 WAF 软拦），重试一次")
-            try:
-                r2 = s.get(SSO_START_URL, timeout=30)
-            except requests.RequestException as e:
-                return False, f"❌ {name}网络异常: {e}"
-            m = re.search(r"url=(https://(?:mossland\.studio|create\.moss\.cn)[^\"']+)", r2.text)
-            if not m:
-                return _fail(f"❌ {name}重试时 sso/start 响应异常 HTTP {r2.status_code}")
-            authorize_url = m.group(1).replace("&amp;", "&")
-
-    session_data = _extract_session_data(r3)
-    if not session_data:
-        return _fail(f"❌ {name}SSO 未通过（未到达 callback 或回调页无令牌）HTTP {r3.status_code}")
-    logger.info("  SSO 回调 OK，平台令牌已签发（发券时刻）")
-
-    # ---- 4. 验证 + 余额 ----
-    headers = {"Authorization": f"Bearer {session_data['access_token']}"}
-    try:
-        me = s.get(ME_URL, headers=headers, timeout=30).json()
-        tx = s.get(TRANSACTIONS_URL, params={"limit": 5, "offset": 0},
-                   headers=headers, timeout=30).json()
-        summary = s.get(SUMMARY_URL, headers=headers, timeout=30).json()
-    except Exception as e:
-        return True, f"✅ {name}登录成功（积分发放已触发），但查询失败: {e}"
-
-    beijing = timezone(timedelta(hours=8))
-    today = datetime.now(beijing).strftime("%Y-%m-%d")
-    yesterday = (datetime.now(beijing) - timedelta(days=1)).strftime("%Y-%m-%d")
-    granted = False
-    grant_amount = None
-    for it in (tx.get("items") or [])[:5]:
-        # processed_at 是 UTC 日期，凌晨（北京时间）运行时可能还是「昨天」
-        if ((it.get("processed_at") or "")[:10] in (today, yesterday)
-                and it.get("direction") == "credit"
-                and it.get("status") == "granted"):
-            granted = True
-            grant_amount = it.get("display_charged_points")
-            break
-    balance = summary.get("display_available_points")
-    email = str(me.get("email", "")).replace(r"^(.).*", r"\1***")
-    amount_desc = f"+{grant_amount}" if grant_amount is not None else "+?"
-    grant_desc = f"今日 {amount_desc} 已到账" if granted else "今日发放已触发（若早前登录过则已领）"
-    bal_desc = f"，余额 {balance}" if balance is not None else ""
-    return True, f"✅ {name}登录成功 — {grant_desc}{bal_desc}（{email}）"
+    保留空实现是为了 main.py / health.py 的导入与调用不报错。
+    参数兼容列表与单个 site（旧版传的是 sites 列表）。
+    """
+    return None
