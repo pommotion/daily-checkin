@@ -91,6 +91,17 @@ SITES = [
         "credentials_env": "MODELSCOPE_CREDENTIALS",
         "enabled": True,
     },
+    {
+        "name": "RunningHub",
+        "auth_mode": "runninghub",
+        # RUNNINGHUB_REFRESH_TOKEN = 浏览器 localStorage 的 Rh-Refreshtoken（种子）
+        # 每日登录 +30 积分（当日有效）；refresh_token 60 天滑动续期，自动滚链无需重抓
+        # ⚠️ 必须用网页 token，RUNNINGHUB_API_KEY 打福利接口一律 412
+        "refresh_token_env": "RUNNINGHUB_REFRESH_TOKEN",
+        # 挂到 curl_bash_env 仅为让 health.py 的 JWT 到期预警提示正确的 Secret 名
+        "curl_bash_env": "RUNNINGHUB_REFRESH_TOKEN",
+        "enabled": True,
+    },
 ]
 
 
@@ -117,6 +128,11 @@ def get_enabled_sites() -> list[dict]:
                 site_copy["refresh_token"] = token
                 # 复用 health.py 的 JWT 预警：refresh_token 是 JWT
                 site_copy["curl_bash"] = "Bearer " + token
+        elif site.get("auth_mode") == "runninghub":
+            # runninghub：env 只是种子，state 里的滑动窗口令牌也可用，故无 env 也启用
+            token = os.getenv(site.get("refresh_token_env", ""), "")
+            if token:
+                site_copy["refresh_token"] = token
         elif site.get("auth_mode") == "libtv" or site.get("auth_mode") == "modelscope":
             creds = os.getenv(site["credentials_env"], "")
             if not creds:
@@ -158,6 +174,11 @@ def get_disabled_reasons() -> list[str]:
                 reasons.append(
                     f"ℹ️ {site['name']} — 种子 Secret {site['credentials_env']} 未配置"
                     f"（若 state 轮换链存在仍可运行）")
+        elif site.get("auth_mode") == "runninghub":
+            if not os.getenv(site.get("refresh_token_env", ""), ""):
+                reasons.append(
+                    f"ℹ️ {site['name']} — 种子 Secret {site.get('refresh_token_env')} 未配置"
+                    f"（若 state 令牌链存在仍可运行）")
         elif site.get("auth_mode") == "sspanel_login":
             if not os.getenv(site["email_env"], "") or not os.getenv(site["passwd_env"], ""):
                 reasons.append(f"⚠️ {site['name']} — Secret {site['email_env']}/{site['passwd_env']} 未配置")

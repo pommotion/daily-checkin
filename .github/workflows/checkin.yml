@@ -48,6 +48,8 @@ jobs:
           LIBTV_CREDENTIALS: ${{ secrets.LIBTV_CREDENTIALS }}
           WORKBUDDY_CREDENTIALS: ${{ secrets.WORKBUDDY_CREDENTIALS }}
           MODELSCOPE_CREDENTIALS: ${{ secrets.MODELSCOPE_CREDENTIALS }}
+          # ===== RunningHub 每日登录积分（当日 +30，refresh_token 60 天滑动续期）=====
+          RUNNINGHUB_REFRESH_TOKEN: ${{ secrets.RUNNINGHUB_REFRESH_TOKEN }}
           # ===== 推送配置 =====
           PUSH_METHOD: ${{ secrets.PUSH_METHOD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

@@ -23,6 +23,7 @@ from moss_checkin import run_moss_sso_checkin, apply_chain_token_for_health
 from libtv_checkin import run_libtv_checkin
 from workbuddy_checkin import run_workbuddy_checkin
 from modelscope_checkin import run_modelscope_checkin
+from runninghub_checkin import run_runninghub_checkin
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +162,9 @@ def run_site_checkin(site: dict, state: dict | None = None) -> tuple[bool, str]:
 
     if auth_mode == "modelscope":
         return run_modelscope_checkin(site, state or {})
+
+    if auth_mode == "runninghub":
+        return run_runninghub_checkin(site, state or {})
 
     return run_curl_checkin(site)
 
@@ -394,9 +398,17 @@ def main() -> int:
     else:
         logger.info("未配置推送渠道，跳过推送")
 
-    # 失败不影响整体退出码（避免 Action 标红导致用户恐慌）
-    # 但如果有配置站点全部缺失（0 站点），返回 1
-    return 0 if len(results) > 0 else 1
+    # 严格模式（2026-11-16 用户决定）：任一站点失败 → 退出码 1 → Action 标红。
+    # 旧行为是「只要还有站点在跑就返回 0」，导致连续 6 天 Moss/ModelScope 失败
+    # 却全程绿勾，只能靠 Telegram 报告里的 ❌ 才能发现。宁可红，不可静默。
+    # 0 站点（全部未配置）同样返回 1，属于配置错误。
+    if len(results) == 0:
+        logger.error("没有执行任何站点 — 全部未配置或已禁用")
+        return 1
+    if fail_count > 0:
+        logger.error(f"{fail_count} 个站点签到失败 — 退出码 1（严格模式）")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
