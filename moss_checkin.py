@@ -48,6 +48,41 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+
+# ---------------- AES-GCM（WorkBuddy 复用，依赖 cryptography） ----------------
+# 说明：WorkBuddy 的 state 加密沿用了这里的两个函数与 MOSS_RT_ENC_KEY，
+# 虽然 Moss 自己已改为账号密码登录、不再需要加密，但这两个函数必须保留，
+# 否则 workbuddy_checkin.py 的 import 会失败（2026-11-16 线上踩过）。
+
+def _enc_key():
+    raw = os.getenv("MOSS_RT_ENC_KEY", "")
+    if not raw:
+        return None
+    try:
+        import base64
+        key = base64.b64decode(raw)
+        return key if len(key) == 32 else None
+    except Exception:
+        return None
+
+
+def _encrypt_token(token: str, key) -> str:
+    import base64
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    nonce = os.urandom(12)
+    ct = AESGCM(key).encrypt(nonce, token.encode(), None)
+    return base64.b64encode(nonce + ct).decode()
+
+
+def _decrypt_token(blob: str, key) -> str | None:
+    import base64
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    try:
+        raw = base64.b64decode(blob)
+        return AESGCM(key).decrypt(raw[:12], raw[12:], None).decode()
+    except Exception:
+        return None
+
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
