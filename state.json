@@ -1,7 +1,7 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": 42,
+      "jwt_days_left": 41,
       "jwt_exp": "2026-12-29T17:47:28+00:00"
     },
     "ListenHub-免费": {
@@ -18,30 +18,25 @@
       "cf_first_seen": "2026-10-31"
     }
   },
-  "last_run_at": "2026-11-17T08:11:15.154864+08:00",
+  "last_run_at": "2026-11-18T02:23:19.822136+08:00",
   "libtv": {},
   "moss_daily": {
     "moss_daily_v***@gmail.com": {
-      "credit": 5000,
+      "credit": 0,
       "grant_source": "log_in_daily_0811",
-      "grant_source_desc": "每日登录奖励",
-      "points": 50.0
+      "grant_source_desc": "无每日登录奖励记录",
+      "points": 0.0
     }
   },
   "moss_sso": {
     "updated_at": "2026-11-16 04:59"
   },
   "runninghub": {
-    "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTc5NzQ2NjI3MywiY3JlYXRlZCI6MTc5NDg3NDI3MzEzNywidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.e-0Fi5TboNkwr0HtorAaGiD4OEpGHfHEpwYa7kckgfT1bmDdwv9OonvgWch7pUNU3fC5mTQFgV7WrpKT3hzRxA",
-    "refresh_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTgwMDA1ODI3MywiY3JlYXRlZCI6MTc5NDg3NDI3MzEzNywidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.5qENtcLg-8DrZC0z4ZnB794wCf0rWLP7mHOfroxSzQgnvwUZ1K3Hkue-AMqSxff4UwmWoRKt5an041nz8hkECA",
-    "updated_at": "2026-11-17 08:11"
+    "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTc5NzUzMTc5NiwiY3JlYXRlZCI6MTc5NDkzOTc5Njg1MywidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.FE5IcH3zVaBcRoAOt7CZy8HDvbJv3AVngChR45fNWpVknpLAKpSRQvEtdgGUT0s4fF_xXPuKND1Z0AnOaUOewA",
+    "refresh_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTgwMDEyMzc5NiwiY3JlYXRlZCI6MTc5NDkzOTc5Njg1MywidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.V-1T_z_zkKwSQlxkvzDHoi6kPYsHLB5SOy3mQZZStMf6dJMmjrjNbBPWPSCsknR9uMcWkH-EqFmb9AZq96h-eg",
+    "updated_at": "2026-11-18 02:23"
   },
   "runs": [
-    {
-      "date": "2026-10-28",
-      "fail": 1,
-      "success": 5
-    },
     {
       "date": "2026-10-29",
       "fail": 2,
@@ -186,23 +181,28 @@
       "date": "2026-11-17",
       "fail": 0,
       "success": 6
+    },
+    {
+      "date": "2026-11-18",
+      "fail": 0,
+      "success": 6
     }
   ],
   "sites": {
     "LibTV": {
       "fail_streak": 0,
-      "last_run": "2026-11-17",
-      "last_success": "2026-11-17",
+      "last_run": "2026-11-18",
+      "last_success": "2026-11-18",
       "total_fails": 0,
-      "total_runs": 62
+      "total_runs": 63
     },
     "ListenHub-会员": {
       "fail_streak": 0,
-      "last_run": "2026-11-17",
-      "last_success": "2026-11-17",
+      "last_run": "2026-11-18",
+      "last_success": "2026-11-18",
       "recovered_at": "2026-11-08",
       "total_fails": 11,
-      "total_runs": 121
+      "total_runs": 122
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -213,34 +213,34 @@
     },
     "ModelScope": {
       "fail_streak": 0,
-      "last_run": "2026-11-17",
-      "last_success": "2026-11-17",
+      "last_run": "2026-11-18",
+      "last_success": "2026-11-18",
       "recovered_at": "2026-11-17",
       "total_fails": 7,
-      "total_runs": 62
+      "total_runs": 63
     },
     "Moss-API": {
       "fail_streak": 0,
-      "last_run": "2026-11-17",
-      "last_success": "2026-11-17",
+      "last_run": "2026-11-18",
+      "last_success": "2026-11-18",
       "recovered_at": "2026-11-17",
       "total_fails": 27,
-      "total_runs": 97
+      "total_runs": 98
     },
     "RunningHub": {
       "fail_streak": 0,
-      "last_run": "2026-11-17",
-      "last_success": "2026-11-17",
+      "last_run": "2026-11-18",
+      "last_success": "2026-11-18",
       "total_fails": 0,
-      "total_runs": 5
+      "total_runs": 6
     },
     "WorkBuddy": {
       "fail_streak": 0,
-      "last_run": "2026-11-17",
-      "last_success": "2026-11-17",
+      "last_run": "2026-11-18",
+      "last_success": "2026-11-18",
       "recovered_at": "2026-11-17",
       "total_fails": 3,
-      "total_runs": 64
+      "total_runs": 65
     },
     "海豚湾": {
       "fail_streak": 11,
