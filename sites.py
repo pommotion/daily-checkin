@@ -81,7 +81,8 @@ SITES = [
         # WORKBUDDY_CREDENTIALS = {"accessToken","refreshToken","expiresAt","domain",
         # "uid","nickname"}（扁平或 CPA 插件嵌套格式均可）；轮换链存 state 加密 blob
         "credentials_env": "WORKBUDDY_CREDENTIALS",
-        "enabled": True,
+        # 2026-11-17 停用归档：WorkBuddy 已在本机 Magpie 网关实现多槽自动续期与每日签到，停用云端重复任务防刷新链互抢
+        "enabled": False,
     },
     {
         "name": "ModelScope",
