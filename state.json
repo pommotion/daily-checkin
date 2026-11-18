@@ -1,7 +1,7 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": 41,
+      "jwt_days_left": 40,
       "jwt_exp": "2026-12-29T17:47:28+00:00"
     },
     "ListenHub-免费": {
@@ -18,30 +18,25 @@
       "cf_first_seen": "2026-10-31"
     }
   },
-  "last_run_at": "2026-11-18T07:28:47.195110+08:00",
+  "last_run_at": "2026-11-19T02:23:21.035117+08:00",
   "libtv": {},
   "moss_daily": {
     "moss_daily_v***@gmail.com": {
-      "credit": 5000,
+      "credit": 0,
       "grant_source": "log_in_daily_0811",
-      "grant_source_desc": "每日登录奖励",
-      "points": 50.0
+      "grant_source_desc": "无每日登录奖励记录",
+      "points": 0.0
     }
   },
   "moss_sso": {
     "updated_at": "2026-11-16 04:59"
   },
   "runninghub": {
-    "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTc5NzU1MDEyNSwiY3JlYXRlZCI6MTc5NDk1ODEyNTE1MiwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.1axXsaAjfZ3C_BGPUWxScH8K4CyqW7OlU8O7xlfxy4g3z4MoSywnloYW4Ury61U1EjDwp7Nbp6y-DjSYtQg90Q",
-    "refresh_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTgwMDE0MjEyNSwiY3JlYXRlZCI6MTc5NDk1ODEyNTE1MiwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.XaDkLT9O-dqwlQtXC74N9vMy5S46CBwtgLxJM7RkdspBAjxrBJKYYJJzEQGL-sp_feu9nat6xyCc9LDN_NGf2g",
-    "updated_at": "2026-11-18 07:28"
+    "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTc5NzYxODE5NywiY3JlYXRlZCI6MTc5NTAyNjE5NzkzMiwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.ZilHUPk-NaOtElm55WshdP3FJiWJXTwCc22jljHnocuFnCKxw9DEJ9atIT7KvY4gcD3fMv5h87zdhvKPyXgBzw",
+    "refresh_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTgwMDIxMDE5NywiY3JlYXRlZCI6MTc5NTAyNjE5NzkzMiwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.FpXTkSOiLrlZTjkFhfIHeRgS-Eh9nXQ1g-XtLjeT82fe5WgO5vR3O4qvhHOEZ0tB1-2SMubNV2jBMnj4yF64aA",
+    "updated_at": "2026-11-19 02:23"
   },
   "runs": [
-    {
-      "date": "2026-10-30",
-      "fail": 2,
-      "success": 4
-    },
     {
       "date": "2026-10-31",
       "fail": 2,
@@ -186,23 +181,28 @@
       "date": "2026-11-18",
       "fail": 0,
       "success": 6
+    },
+    {
+      "date": "2026-11-19",
+      "fail": 0,
+      "success": 5
     }
   ],
   "sites": {
     "LibTV": {
       "fail_streak": 0,
-      "last_run": "2026-11-18",
-      "last_success": "2026-11-18",
+      "last_run": "2026-11-19",
+      "last_success": "2026-11-19",
       "total_fails": 0,
-      "total_runs": 64
+      "total_runs": 65
     },
     "ListenHub-会员": {
       "fail_streak": 0,
-      "last_run": "2026-11-18",
-      "last_success": "2026-11-18",
+      "last_run": "2026-11-19",
+      "last_success": "2026-11-19",
       "recovered_at": "2026-11-08",
       "total_fails": 11,
-      "total_runs": 123
+      "total_runs": 124
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -213,26 +213,26 @@
     },
     "ModelScope": {
       "fail_streak": 0,
-      "last_run": "2026-11-18",
-      "last_success": "2026-11-18",
+      "last_run": "2026-11-19",
+      "last_success": "2026-11-19",
       "recovered_at": "2026-11-17",
       "total_fails": 7,
-      "total_runs": 64
+      "total_runs": 65
     },
     "Moss-API": {
       "fail_streak": 0,
-      "last_run": "2026-11-18",
-      "last_success": "2026-11-18",
+      "last_run": "2026-11-19",
+      "last_success": "2026-11-19",
       "recovered_at": "2026-11-17",
       "total_fails": 27,
-      "total_runs": 99
+      "total_runs": 100
     },
     "RunningHub": {
       "fail_streak": 0,
-      "last_run": "2026-11-18",
-      "last_success": "2026-11-18",
+      "last_run": "2026-11-19",
+      "last_success": "2026-11-19",
       "total_fails": 0,
-      "total_runs": 7
+      "total_runs": 8
     },
     "WorkBuddy": {
       "fail_streak": 0,
