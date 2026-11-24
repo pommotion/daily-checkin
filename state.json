@@ -1,7 +1,7 @@
 {
   "credentials": {
     "ListenHub-会员": {
-      "jwt_days_left": 36,
+      "jwt_days_left": 35,
       "jwt_exp": "2026-12-29T17:47:28+00:00"
     },
     "ListenHub-免费": {
@@ -18,7 +18,7 @@
       "cf_first_seen": "2026-10-31"
     }
   },
-  "last_run_at": "2026-11-23T05:43:22.357015+08:00",
+  "last_run_at": "2026-11-24T10:52:34.896788+08:00",
   "libtv": {},
   "moss_daily": {
     "moss_daily_v***@gmail.com": {
@@ -32,16 +32,11 @@
     "updated_at": "2026-11-16 04:59"
   },
   "runninghub": {
-    "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTc5Nzk3NTgwMSwiY3JlYXRlZCI6MTc5NTM4MzgwMTMwNCwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.01CAO0erW7B1-2FnNESMLyqu-MaFOwetiN-q02Ze-eNV0zD-fKC6ALSl2ReIbkjD03ndgDXbkNUWGTLo5lSgcg",
-    "refresh_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTgwMDU2NzgwMSwiY3JlYXRlZCI6MTc5NTM4MzgwMTMwNCwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.JEBuV0EmVxjuStcVQy-P1x_gFMFcLjxu6WQpT2APvOdRr_adB2PDbJkRrap0i4WXU_jvIQTyL7XxxlNIECbi7Q",
-    "updated_at": "2026-11-23 05:43"
+    "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTc5ODA4MDc1MSwiY3JlYXRlZCI6MTc5NTQ4ODc1MTc1NSwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.6_GE7nVH9bWXyQbkaftfOIgNoQOPzjJdLgoVNszexOe1OYW0uDYvvqyastm_Cg5dfF0L1hVKWaadDdlob6KBpA",
+    "refresh_token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxODk5Njc0MTM4NjAzMDc3NjM0IiwiZXBvY2giOjE3OTMxMTAzNjA3MDQsImV4cCI6MTgwMDY3Mjc1MSwiY3JlYXRlZCI6MTc5NTQ4ODc1MTc1NSwidXNlcm5hbWUiOiIzNzRiODdiMGNjZTczNDJkYTM5YzNhZWE4NjIzOGRhOSIsInVzZXJSZWdpb24iOiJ6aF9DTiJ9.nNSdsjG-EskxchBlRG2qaWyKdMoTjqAu3p9vlAcY2xBhdTI0hJJDZUGBRSZQPsFkqgquBtx5OvP6ZseUyij-0w",
+    "updated_at": "2026-11-24 10:52"
   },
   "runs": [
-    {
-      "date": "2026-11-02",
-      "fail": 1,
-      "success": 4
-    },
     {
       "date": "2026-11-03",
       "fail": 1,
@@ -186,23 +181,28 @@
       "date": "2026-11-23",
       "fail": 0,
       "success": 5
+    },
+    {
+      "date": "2026-11-24",
+      "fail": 0,
+      "success": 5
     }
   ],
   "sites": {
     "LibTV": {
       "fail_streak": 0,
-      "last_run": "2026-11-23",
-      "last_success": "2026-11-23",
+      "last_run": "2026-11-24",
+      "last_success": "2026-11-24",
       "total_fails": 0,
-      "total_runs": 70
+      "total_runs": 71
     },
     "ListenHub-会员": {
       "fail_streak": 0,
-      "last_run": "2026-11-23",
-      "last_success": "2026-11-23",
+      "last_run": "2026-11-24",
+      "last_success": "2026-11-24",
       "recovered_at": "2026-11-08",
       "total_fails": 11,
-      "total_runs": 129
+      "total_runs": 130
     },
     "ListenHub-免费": {
       "fail_streak": 4,
@@ -213,26 +213,26 @@
     },
     "ModelScope": {
       "fail_streak": 0,
-      "last_run": "2026-11-23",
-      "last_success": "2026-11-23",
+      "last_run": "2026-11-24",
+      "last_success": "2026-11-24",
       "recovered_at": "2026-11-17",
       "total_fails": 7,
-      "total_runs": 70
+      "total_runs": 71
     },
     "Moss-API": {
       "fail_streak": 0,
-      "last_run": "2026-11-23",
-      "last_success": "2026-11-23",
+      "last_run": "2026-11-24",
+      "last_success": "2026-11-24",
       "recovered_at": "2026-11-17",
       "total_fails": 27,
-      "total_runs": 105
+      "total_runs": 106
     },
     "RunningHub": {
       "fail_streak": 0,
-      "last_run": "2026-11-23",
-      "last_success": "2026-11-23",
+      "last_run": "2026-11-24",
+      "last_success": "2026-11-24",
       "total_fails": 0,
-      "total_runs": 13
+      "total_runs": 14
     },
     "WorkBuddy": {
       "fail_streak": 0,
